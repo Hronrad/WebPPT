@@ -1,17 +1,17 @@
 body {
-    font-size: 16px;
+    font-size: 17px;
 }
 
 .text-xs {
-    font-size: 0.94rem !important;
+    font-size: 1rem !important;
 }
 
 .text-sm {
-    font-size: 1.06rem !important;
+    font-size: 1.12rem !important;
 }
 
 .text-base {
-    font-size: 1.12rem !important;
+    font-size: 1.18rem !important;
 }
 
 .fade-in-up {
@@ -80,26 +80,26 @@ body.has-watermark::before {
 }
 
 .page-content .text-\[10px\] {
-    font-size: 0.86rem !important;
+    font-size: 0.92rem !important;
 }
 
 .page-content .text-\[11px\] {
-    font-size: 0.9rem !important;
+    font-size: 0.96rem !important;
 }
 
 .page-content mjx-container[jax="CHTML"] {
-    font-size: 1.18em !important;
+    font-size: 1.22em !important;
 }
 
 .page-content mjx-container[jax="CHTML"][display="true"] {
-    font-size: 1.38em !important;
+    font-size: 1.44em !important;
     margin: 0.42em 0 !important;
 }
 
 .page-content .text-sm mjx-container[jax="CHTML"][display="true"],
 .page-content .text-xs mjx-container[jax="CHTML"][display="true"],
 .page-content .text-\[10px\] mjx-container[jax="CHTML"][display="true"] {
-    font-size: 1.5em !important;
+    font-size: 1.56em !important;
 }
 
 ::-webkit-scrollbar {
@@ -168,31 +168,76 @@ body.fullscreen-active .page-content {
     max-width: 90% !important;
     margin: 0 auto;
     max-height: calc(100vh - 80px) !important;
-    font-size: 115%;
+    font-size: 128%;
 }
 
 body.fullscreen-active h1 {
-    font-size: 4rem !important;
+    font-size: 4.5rem !important;
 }
 
 body.fullscreen-active h2 {
-    font-size: 2rem !important;
+    font-size: 2.45rem !important;
 }
 
 body.fullscreen-active h3 {
-    font-size: 1.4rem !important;
+    font-size: 1.72rem !important;
 }
 
 body.fullscreen-active .text-xs {
-    font-size: 0.9rem !important;
+    font-size: 1.2rem !important;
 }
 
 body.fullscreen-active .text-sm {
-    font-size: 1.05rem !important;
+    font-size: 1.34rem !important;
 }
 
 body.fullscreen-active .text-base {
-    font-size: 1.15rem !important;
+    font-size: 1.48rem !important;
+}
+
+body.fullscreen-active .page-content .text-lg {
+    font-size: 1.62rem !important;
+}
+
+body.fullscreen-active .page-content .text-xl {
+    font-size: 1.9rem !important;
+}
+
+body.fullscreen-active .page-content .text-2xl {
+    font-size: 2.35rem !important;
+}
+
+body.fullscreen-active .page-content .text-3xl {
+    font-size: 2.85rem !important;
+}
+
+body.fullscreen-active .page-content .text-4xl {
+    font-size: 3.55rem !important;
+}
+
+body.fullscreen-active .page-content .text-5xl {
+    font-size: 4.35rem !important;
+}
+
+body.fullscreen-active .page-content .text-6xl,
+body.fullscreen-active .page-content .md\:text-6xl {
+    font-size: 4.85rem !important;
+}
+
+body.fullscreen-active .page-content .text-\[10px\] {
+    font-size: 1.08rem !important;
+}
+
+body.fullscreen-active .page-content .text-\[11px\] {
+    font-size: 1.14rem !important;
+}
+
+body.fullscreen-active .page-content mjx-container[jax="CHTML"] {
+    font-size: 1.32em !important;
+}
+
+body.fullscreen-active .page-content mjx-container[jax="CHTML"][display="true"] {
+    font-size: 1.58em !important;
 }
 
 body.fullscreen-active #btn-prev {
