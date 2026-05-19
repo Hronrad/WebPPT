@@ -1,0 +1,213 @@
+body {
+    font-size: 16px;
+}
+
+.text-xs {
+    font-size: 0.94rem !important;
+}
+
+.text-sm {
+    font-size: 1.06rem !important;
+}
+
+.text-base {
+    font-size: 1.12rem !important;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(15px);
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.timeline-item.active .timeline-content {
+    max-height: 220px;
+    opacity: 1;
+}
+
+.timeline-item.active .timeline-marker {
+    background-color: #0ea5e9;
+    border-color: #0284c7;
+    transform: scale(1.2);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.glass-card p,
+.glass-card li {
+    line-height: 1.55 !important;
+}
+
+body.has-watermark::before {
+    content: "";
+    position: fixed;
+    width: 15rem;
+    height: 18rem;
+    background-image: var(--watermark-image);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: var(--watermark-opacity, 0.085);
+    pointer-events: none;
+    z-index: 0;
+    filter: saturate(0.85);
+    top: 1.5rem;
+    right: 2rem;
+}
+
+.page-content .text-\[10px\] {
+    font-size: 0.86rem !important;
+}
+
+.page-content .text-\[11px\] {
+    font-size: 0.9rem !important;
+}
+
+.page-content mjx-container[jax="CHTML"] {
+    font-size: 1.18em !important;
+}
+
+.page-content mjx-container[jax="CHTML"][display="true"] {
+    font-size: 1.38em !important;
+    margin: 0.42em 0 !important;
+}
+
+.page-content .text-sm mjx-container[jax="CHTML"][display="true"],
+.page-content .text-xs mjx-container[jax="CHTML"][display="true"],
+.page-content .text-\[10px\] mjx-container[jax="CHTML"][display="true"] {
+    font-size: 1.5em !important;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 14rem;
+    right: 0;
+    height: 4px;
+    background: rgba(15, 23, 42, 0.1);
+    z-index: 100;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9 0%, #06b6d4 100%);
+    transition: width 0.3s ease;
+}
+
+.page-content {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+.page-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+:fullscreen,
+:-webkit-full-screen,
+:-moz-full-screen {
+    background: #0f172a;
+}
+
+body.fullscreen-active {
+    overflow: hidden;
+}
+
+body.fullscreen-active aside {
+    display: none !important;
+}
+
+body.fullscreen-active main {
+    margin-left: 0 !important;
+    padding: 2rem 4rem !important;
+}
+
+body.fullscreen-active .page-content {
+    max-width: 90% !important;
+    margin: 0 auto;
+    max-height: calc(100vh - 80px) !important;
+    font-size: 115%;
+}
+
+body.fullscreen-active h1 {
+    font-size: 4rem !important;
+}
+
+body.fullscreen-active h2 {
+    font-size: 2rem !important;
+}
+
+body.fullscreen-active h3 {
+    font-size: 1.4rem !important;
+}
+
+body.fullscreen-active .text-xs {
+    font-size: 0.9rem !important;
+}
+
+body.fullscreen-active .text-sm {
+    font-size: 1.05rem !important;
+}
+
+body.fullscreen-active .text-base {
+    font-size: 1.15rem !important;
+}
+
+body.fullscreen-active #btn-prev {
+    left: 2rem !important;
+}
+
+body.fullscreen-active #btn-next {
+    right: 2rem !important;
+}
+
+body.fullscreen-active #btn-fullscreen {
+    background: rgba(139, 92, 246, 0.3) !important;
+    backdrop-filter: blur(10px);
+}
+
+body.fullscreen-active .progress-bar {
+    display: none;
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+  <defs>
+    <style>
+      .stroke { fill: none; stroke: #0f172a; stroke-width: 10; }
+      .text { fill: #0f172a; font-family: Georgia, 'Times New Roman', serif; font-weight: 700; letter-spacing: 3px; }
+      .line { stroke: #0f172a; stroke-width: 7; stroke-linecap: round; }
+    </style>
+  </defs>
+  <circle class="stroke" cx="160" cy="160" r="136"/>
+  <circle class="stroke" cx="160" cy="160" r="104"/>
+  <text class="text" x="160" y="82" text-anchor="middle" font-size="24">ACADEMIC</text>
+  <text class="text" x="160" y="252" text-anchor="middle" font-size="22">PRESENTATION</text>
+  <path class="line" d="M94 144h132"/>
+  <path class="line" d="M112 171h96"/>
+  <path class="line" d="M133 198h54"/>
+  <path class="stroke" d="M160 102l54 32-54 32-54-32z"/>
+  <path class="line" d="M128 166v28M192 166v28"/>
+</svg>

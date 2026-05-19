@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebPPT 模板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
+        };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['"Noto Serif SC"', 'serif']
+                    },
+                    colors: {
+                        academic: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            accent: '#0ea5e9'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 flex h-screen overflow-hidden selection:bg-academic-accent selection:text-white relative has-watermark" style="--watermark-image: url('assets/nanjing-university-logo.png'); --watermark-opacity: 0.085;">
+    <canvas id="networkCanvas" class="absolute inset-0 z-0 opacity-60 pointer-events-none"></canvas>
+
+    <aside class="w-56 bg-academic-900 text-white flex flex-col justify-between relative z-10 shadow-2xl shrink-0 overflow-y-auto" style="max-height: 100vh;">
+        <div class="p-5">
+            <div class="w-10 h-1 bg-academic-accent mb-4"></div>
+            <h1 id="deck-title" class="text-xl font-serif font-bold leading-tight mb-2">WebPPT 模板</h1>
+            <p class="text-slate-400 text-xs mb-6 uppercase tracking-widest flex items-center transition-all duration-300">
+                <span id="section-number" class="bg-academic-accent/20 text-academic-accent px-1.5 py-0.5 rounded mr-2 font-mono text-[10px] transition-all">封面</span>
+                <span id="section-title" class="transition-all">模板框架</span>
+            </p>
+            <nav id="slide-nav" class="space-y-1.5 text-xs"></nav>
+        </div>
+        <div class="p-5 text-[10px] text-slate-500 opacity-60">Reusable WebPPT</div>
+    </aside>
+
+    <main class="flex-1 relative z-10 overflow-y-auto overflow-x-hidden p-6 lg:p-8 flex flex-col items-center justify-center" id="main-scroll">
+        <!-- Slide 0: Cover -->
+        <section id="page-0"
+                 class="page-content w-full max-w-7xl mx-auto flex items-center justify-center relative"
+                 style="min-height: calc(100vh - 100px);"
+                 data-nav="封面"
+                 data-part="封面"
+                 data-part-title="模板框架">
+            <div class="absolute top-0 left-0 fade-in-up">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">WebPPT Template</span>
+            </div>
+            <div class="text-center max-w-4xl mx-auto px-4">
+                <div class="w-20 h-1 bg-academic-accent mx-auto mb-8"></div>
+                <h2 class="text-5xl md:text-6xl font-serif font-black text-academic-900 leading-tight mb-6 tracking-tight">可复用网页演示模板</h2>
+                <p class="text-xl text-slate-500 font-serif mb-10">侧边导航 · 自动分页 · 数学公式 · 全屏演示 · 可切换背景与水印</p>
+                <div class="glass-card inline-block px-8 py-4 rounded-xl">
+                    <p class="text-xs font-bold text-slate-900 mb-2">使用方式</p>
+                    <p class="text-xs text-slate-700 leading-relaxed">复制页面 section，修改 data-nav / data-part / data-part-title，即可生成新的演示页。</p>
+                </div>
+            </div>
+            <div class="absolute bottom-8 right-8 fade-in-up delay-300">
+                <p class="text-sm text-slate-600 mb-1 text-right">汇报人</p>
+                <p class="text-2xl font-serif font-bold text-academic-900">xx</p>
+            </div>
+        </section>
+
+        <!-- Slide 1: Basic Layout -->
+        <section id="page-1"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="基础版式"
+                 data-part="PART 01"
+                 data-part-title="内容组件">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 01：内容组件</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">基础版式与卡片系统</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fade-in-up delay-100">
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500">
+                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">左侧重点卡片</h3>
+                    <p class="text-xs text-slate-700 leading-snug">
+                        适合承载核心定义、研究问题、重要结论。卡片采用浅色玻璃质感，适合学术报告与课程演示。
+                    </p>
+                </div>
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
+                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">右侧补充卡片</h3>
+                    <p class="text-xs text-slate-700 leading-snug">
+                        可放置案例、数据、公式解释或反例。颜色建议用于表达信息类型，而不是纯装饰。
+                    </p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-slate-50 to-white fade-in-up delay-200 mt-4">
+                <h3 class="text-base font-serif font-bold text-academic-900 mb-3">横向说明卡片</h3>
+                <p class="text-xs text-slate-700 leading-snug">
+                    横向卡片适合作为一个页面的导入、总结或关键转折。你可以把引用、背景说明、方法论提醒放在这里。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 fade-in-up delay-300 mt-4">
+                <div class="text-center p-3 bg-slate-50 rounded-lg border border-slate-200">
+                    <p class="text-[10px] text-slate-600 mb-1">指标 A</p>
+                    <p class="text-lg font-bold text-slate-700">128</p>
+                </div>
+                <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-[10px] text-slate-600 mb-1">指标 B</p>
+                    <p class="text-lg font-bold text-blue-600">87%</p>
+                </div>
+                <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <p class="text-[10px] text-slate-600 mb-1">指标 C</p>
+                    <p class="text-lg font-bold text-emerald-600">+24</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-5 fade-in-up delay-400 relative overflow-hidden mt-4">
+                <div class="absolute text-6xl font-serif text-slate-200 -top-4 left-2 leading-none select-none z-0">"</div>
+                <div class="relative z-10 pl-4">
+                    <p class="text-sm text-slate-700 leading-snug italic border-l-2 border-academic-accent pl-3">
+                        引用强调卡适合放置论文原句、核心判断或汇报中的转折句。左侧竖线和背景引号能让它与普通正文自然区分。
+                    </p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-blue-50 to-white border border-blue-200 fade-in-up delay-300 mt-4">
+                <h3 class="text-base font-serif font-bold text-academic-900 mb-3">页面外观设置</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="background-mode" class="text-xs font-bold text-slate-700 mb-2 block">动态背景</label>
+                        <select id="background-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
+                            <option value="network">粒子网络</option>
+                            <option value="waves">流动波纹</option>
+                            <option value="off">关闭背景</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="watermark-mode" class="text-xs font-bold text-slate-700 mb-2 block">右上角水印</label>
+                        <select id="watermark-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
+                            <option value="nju" data-image="assets/nanjing-university-logo.png" data-opacity="0.085">南京大学</option>
+                            <option value="seal" data-image="assets/watermark-academic-seal.svg" data-opacity="0.075">学术圆章</option>
+                            <option value="lab" data-image="assets/watermark-lab-mark.svg" data-opacity="0.08">实验室标识</option>
+                            <option value="none">关闭水印</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Formula Layout -->
+        <section id="page-2"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="公式页面"
+                 data-part="PART 02"
+                 data-part-title="数学表达"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 02：数学表达</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">公式与推导展示</h2>
+            </div>
+
+            <div class="glass-card rounded-xl p-6 bg-gradient-to-br from-white to-blue-50 border-2 border-blue-300/40 fade-in-up delay-100 mb-4 text-center">
+                <p class="text-xs font-bold text-blue-700 tracking-wide uppercase mb-2">主公式区域</p>
+                <div class="bg-white/80 rounded-xl border border-blue-100 px-4 py-4 overflow-x-auto">
+                    <p class="font-serif text-base text-slate-800 whitespace-nowrap">$$E = mc^2, \qquad i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi$$</p>
+                </div>
+                <p class="text-xs text-slate-600 leading-snug mt-3">
+                    主公式建议居中放大，下方再用小卡片解释各参数含义。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fade-in-up delay-200">
+                <div class="glass-card rounded-xl p-4 border-t-2 border-t-sky-500">
+                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">参数 A</h4>
+                    <p class="text-xs text-slate-700 leading-snug">解释参数的物理或业务含义。</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 border-t-2 border-t-purple-500">
+                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">参数 B</h4>
+                    <p class="text-xs text-slate-700 leading-snug">说明约束条件和适用范围。</p>
+                </div>
+                <div class="glass-card rounded-xl p-4 border-t-2 border-t-emerald-500">
+                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">结论</h4>
+                    <p class="text-xs text-slate-700 leading-snug">把公式导向的结果写成一句清楚的话。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Timeline -->
+        <section id="page-3"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="时间线"
+                 data-part="PART 03"
+                 data-part-title="叙事结构"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 03：叙事结构</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">可展开时间线</h2>
+            </div>
+
+            <div class="relative fade-in-up delay-100">
+                <div class="border-2-2 absolute border-opacity-20 border-slate-700 h-full border-l-2" style="left: 1.25rem;"></div>
+                <div class="timeline-item mb-2.5 relative pl-10 cursor-pointer active" onclick="toggleTimeline(this)">
+                    <div class="timeline-marker absolute w-4 h-4 bg-slate-100 border-2 border-slate-300 rounded-full z-10 transition-all duration-300" style="left: 0.8rem; top: 0.75rem;"></div>
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow transition-shadow">
+                        <div class="p-3 flex items-start justify-between">
+                            <div class="pr-3">
+                                <h3 class="text-sm font-bold text-academic-800 mb-1">阶段一</h3>
+                                <p class="text-slate-500 font-serif text-[10px] leading-tight">背景、问题或历史节点。</p>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-400 transform transition-transform shrink-0 mt-0.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div class="timeline-content bg-slate-50 border-t border-slate-100 px-4">
+                            <p class="text-slate-700 leading-snug py-2.5 text-xs">展开后显示更完整的解释、引用或分析。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item mb-2.5 relative pl-10 cursor-pointer" onclick="toggleTimeline(this)">
+                    <div class="timeline-marker absolute w-4 h-4 bg-slate-100 border-2 border-slate-300 rounded-full z-10 transition-all duration-300" style="left: 0.8rem; top: 0.75rem;"></div>
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow transition-shadow">
+                        <div class="p-3 flex items-start justify-between">
+                            <div class="pr-3">
+                                <h3 class="text-sm font-bold text-academic-800 mb-1">阶段二</h3>
+                                <p class="text-slate-500 font-serif text-[10px] leading-tight">方法、证据或关键转折。</p>
+                            </div>
+                            <svg class="w-4 h-4 text-slate-400 transform transition-transform shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div class="timeline-content bg-slate-50 border-t border-slate-100 px-4">
+                            <p class="text-slate-700 leading-snug py-2.5 text-xs">这里可以放论文、里程碑、产品版本或项目节点。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Interactive Demo -->
+        <section id="page-4"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="动态演示"
+                 data-part="PART 04"
+                 data-part-title="交互组件"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 04：交互组件</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">动态演示功能模板</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 fade-in-up delay-100">
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-sky-500">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">Canvas 动态可视化</h3>
+                            <p class="text-[11px] text-slate-500 leading-snug">滑块会实时改变正弦波频率，按钮可暂停或重置演示。</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="demo-toggle" class="px-3 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-500 transition-colors">暂停</button>
+                            <button id="demo-reset" class="px-3 py-2 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">重置</button>
+                        </div>
+                    </div>
+                    <canvas id="demo-canvas" width="900" height="360" class="w-full h-[300px] md:h-[360px] rounded-lg bg-white border border-slate-200"></canvas>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="glass-card rounded-xl p-4 border border-slate-200">
+                        <label class="text-xs font-bold text-slate-700 mb-2 block">频率：<span id="demo-frequency-value" class="text-academic-accent">3</span>x</label>
+                        <input id="demo-frequency" type="range" min="1" max="8" value="3" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">当前状态</p>
+                        <div class="grid grid-cols-2 gap-2 text-center">
+                            <div class="bg-sky-50 p-2 rounded border border-sky-100">
+                                <p class="text-[10px] text-slate-500">帧数</p>
+                                <p id="demo-frame" class="text-xs font-bold text-sky-700">0</p>
+                            </div>
+                            <div class="bg-emerald-50 p-2 rounded border border-emerald-100">
+                                <p class="text-[10px] text-slate-500">状态</p>
+                                <p id="demo-status" class="text-xs font-bold text-emerald-700">运行中</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white border border-blue-200">
+                        <p class="text-xs text-slate-700 leading-snug">
+                            复制这一页时，只需要保留 canvas、控件和 `initInteractiveDemo()` 的对应逻辑，就可以替换成任意领域的动态图表或模拟。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Comparison Table -->
+        <section id="page-5"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="对照表"
+                 data-part="PART 05"
+                 data-part-title="比较展示"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 05：比较展示</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">观点对照表模板</h2>
+            </div>
+
+            <div class="overflow-x-auto fade-in-up delay-100">
+                <table class="w-full text-[10px] border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
+                    <thead>
+                        <tr class="bg-slate-900 text-white">
+                            <th class="text-left p-3 font-bold border-r border-slate-700">比较维度</th>
+                            <th class="text-left p-3 font-bold border-r border-slate-700">方案 A</th>
+                            <th class="text-left p-3 font-bold">方案 B</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs">
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">基本假设</td>
+                            <td class="p-3 border-r border-slate-200">描述第一种方案的前提、边界与适用场景。</td>
+                            <td class="p-3">描述第二种方案的前提、边界与适用场景。</td>
+                        </tr>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">优势</td>
+                            <td class="p-3 border-r border-slate-200">更成熟、路径清楚、已有验证或工程积累。</td>
+                            <td class="p-3">更灵活、解释力更强，或能覆盖新的问题范围。</td>
+                        </tr>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">限制</td>
+                            <td class="p-3 border-r border-slate-200">指出主要风险、缺口或外推条件。</td>
+                            <td class="p-3">指出尚未解决的问题与需要验证的环节。</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">适用结论</td>
+                            <td class="p-3 border-r border-slate-200">适合保守、稳定、可重复的场景。</td>
+                            <td class="p-3">适合探索性、解释性或需要互动展示的场景。</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="glass-card rounded-xl p-4 bg-slate-50 fade-in-up delay-200 mt-4">
+                <p class="text-xs text-slate-700 leading-snug text-center">
+                    对照表适合总结框架差异、方案取舍或正反观点。表头用深色，首列用浅灰，方便观众快速扫读。
+                </p>
+            </div>
+        </section>
+
+        <!-- Slide 6: Closing -->
+        <section id="page-6"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="结论"
+                 data-part="PART 06"
+                 data-part-title="总结"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 06：总结</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">结论页模板</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fade-in-up delay-100">
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500">
+                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">结论一</h3>
+                    <p class="text-xs text-slate-700 leading-snug">用一句话总结最重要的发现。</p>
+                </div>
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-purple-500">
+                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">结论二</h3>
+                    <p class="text-xs text-slate-700 leading-snug">说明仍然存在的限制或不确定性。</p>
+                </div>
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
+                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">下一步</h3>
+                    <p class="text-xs text-slate-700 leading-snug">给出面向行动的后续计划。</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-blue-50 to-sky-50 border-2 border-blue-300/70 fade-in-up delay-200 mt-4">
+                <p class="text-xs text-blue-900 leading-snug text-center">
+                    保持结论克制、清楚，并把听众带回可以验证或执行的下一步。
+                </p>
+            </div>
+        </section>
+
+        <!-- Fixed Center-Left / Center-Right Navigation Buttons -->
+        <button id="btn-prev" onclick="prevPage()" class="fixed left-[15.5rem] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 text-academic-900 flex items-center justify-center hover:bg-slate-100 transition-all z-50 opacity-0 pointer-events-none">
+            <svg class="w-5 h-5 pr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="btn-next" onclick="nextPage()" class="fixed right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-academic-900 shadow-md border border-slate-700 text-white flex items-center justify-center hover:bg-academic-800 transition-all z-50">
+            <svg class="w-5 h-5 pl-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+
+        <button id="btn-fullscreen" onclick="toggleFullscreen()" class="fixed right-6 bottom-6 w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg text-white flex items-center justify-center hover:from-purple-700 hover:to-pink-700 transition-all z-50" title="全屏放映 (F)">
+            <svg id="fullscreen-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+            <svg id="fullscreen-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"></path></svg>
+        </button>
+    </main>
+
+    <div class="progress-bar">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

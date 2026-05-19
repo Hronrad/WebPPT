@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+  <defs>
+    <style>
+      .stroke { fill: none; stroke: #0f172a; stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+      .fill { fill: #0f172a; }
+      .text { fill: #0f172a; font-family: Inter, Arial, sans-serif; font-weight: 800; letter-spacing: 4px; }
+    </style>
+  </defs>
+  <rect class="stroke" x="42" y="42" width="236" height="236" rx="42"/>
+  <path class="stroke" d="M108 214V108h48c30 0 50 16 50 42s-20 42-50 42h-48"/>
+  <path class="stroke" d="M206 108v106"/>
+  <circle class="fill" cx="104" cy="104" r="10"/>
+  <circle class="fill" cx="216" cy="216" r="10"/>
+  <path class="stroke" d="M92 246h136"/>
+  <text class="text" x="160" y="82" text-anchor="middle" font-size="23">LAB</text>
+</svg>
