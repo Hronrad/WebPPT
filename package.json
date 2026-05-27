@@ -2,7 +2,7 @@
   "name": "webppt-template",
   "version": "1.0.0",
   "private": true,
-  "description": "Reusable static WebPPT template with sidebar navigation, MathJax, fullscreen mode, and animated background.",
+  "description": "AI-native interactive web presentation template with live demos, MathJax formulas, version-controlled HTML, and reusable control patterns.",
   "scripts": {
     "serve": "python3 -m http.server 4174"
   }

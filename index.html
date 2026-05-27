@@ -33,7 +33,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 flex h-screen overflow-hidden selection:bg-academic-accent selection:text-white relative has-watermark" style="--watermark-image: url('assets/nanjing-university-logo.png'); --watermark-opacity: 0.085;">
+<body class="theme-sky bg-slate-50 font-sans text-slate-800 flex h-screen overflow-hidden selection:bg-academic-accent selection:text-white relative has-watermark" style="--watermark-image: url('assets/nanjing-university-logo.png'); --watermark-opacity: 0.085;">
     <canvas id="networkCanvas" class="absolute inset-0 z-0 opacity-60 pointer-events-none"></canvas>
 
     <aside class="w-56 bg-academic-900 text-white flex flex-col justify-between relative z-10 shadow-2xl shrink-0 overflow-y-auto" style="max-height: 100vh;">
@@ -63,7 +63,7 @@
             <div class="text-center max-w-4xl mx-auto px-4">
                 <div class="w-20 h-1 bg-academic-accent mx-auto mb-8"></div>
                 <h2 class="text-5xl md:text-6xl font-serif font-black text-academic-900 leading-tight mb-6 tracking-tight">可复用网页演示模板</h2>
-                <p class="text-xl text-slate-500 font-serif mb-10">侧边导航 · 自动分页 · 数学公式 · 全屏演示 · 可切换背景与水印</p>
+                <p class="text-xl text-slate-500 font-serif mb-10">现场交互演示 · 参数实验 · 数学公式 · 全屏放映 · AI 可读可改</p>
                 <div class="glass-card inline-block px-8 py-4 rounded-xl">
                     <p class="text-xs font-bold text-slate-900 mb-2">使用方式</p>
                     <p class="text-xs text-slate-700 leading-relaxed">复制页面 section，修改 data-nav / data-part / data-part-title，即可生成新的演示页。</p>
@@ -134,7 +134,16 @@
 
             <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-blue-50 to-white border border-blue-200 fade-in-up delay-300 mt-4">
                 <h3 class="text-base font-serif font-bold text-academic-900 mb-3">页面外观设置</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="style-mode" class="text-xs font-bold text-slate-700 mb-2 block">风格模板</label>
+                        <select id="style-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
+                            <option value="theme-sky">学术蓝</option>
+                            <option value="theme-emerald">研究绿</option>
+                            <option value="theme-violet">技术紫</option>
+                            <option value="theme-rose">答辩红</option>
+                        </select>
+                    </div>
                     <div>
                         <label for="background-mode" class="text-xs font-bold text-slate-700 mb-2 block">动态背景</label>
                         <select id="background-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
@@ -251,17 +260,17 @@
                  data-group-start="true">
             <div class="fade-in-up mb-4">
                 <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 04：交互组件</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">动态演示功能模板</h2>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">多参数交互实验台</h2>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 fade-in-up delay-100">
                 <div class="glass-card rounded-xl p-5 border-l-4 border-l-sky-500">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                         <div>
-                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">Canvas 动态可视化</h3>
-                            <p class="text-[11px] text-slate-500 leading-snug">滑块会实时改变正弦波频率，按钮可暂停或重置演示。</p>
+                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">现场可操作的概念模拟</h3>
+                            <p class="text-[11px] text-slate-500 leading-snug">频率、幅度、阻尼和显示模式会实时改变曲线与采样点状态。</p>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex flex-wrap gap-2">
                             <button id="demo-toggle" class="px-3 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-500 transition-colors">暂停</button>
                             <button id="demo-reset" class="px-3 py-2 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">重置</button>
                         </div>
@@ -275,6 +284,22 @@
                         <input id="demo-frequency" type="range" min="1" max="8" value="3" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
                     </div>
                     <div class="glass-card rounded-xl p-4 border border-slate-200">
+                        <label class="text-xs font-bold text-slate-700 mb-2 block">幅度：<span id="demo-amplitude-value" class="text-academic-accent">62</span>%</label>
+                        <input id="demo-amplitude" type="range" min="20" max="95" value="62" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-slate-200">
+                        <label class="text-xs font-bold text-slate-700 mb-2 block">阻尼：<span id="demo-damping-value" class="text-academic-accent">18</span>%</label>
+                        <input id="demo-damping" type="range" min="0" max="65" value="18" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-slate-200">
+                        <p class="text-xs font-bold text-slate-700 mb-2">显示模式</p>
+                        <div class="segmented-control">
+                            <button type="button" class="demo-mode-btn active" data-demo-mode="wave">曲线</button>
+                            <button type="button" class="demo-mode-btn" data-demo-mode="samples">采样</button>
+                            <button type="button" class="demo-mode-btn" data-demo-mode="energy">能量</button>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4 border border-slate-200">
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">当前状态</p>
                         <div class="grid grid-cols-2 gap-2 text-center">
                             <div class="bg-sky-50 p-2 rounded border border-sky-100">
@@ -285,26 +310,162 @@
                                 <p class="text-[10px] text-slate-500">状态</p>
                                 <p id="demo-status" class="text-xs font-bold text-emerald-700">运行中</p>
                             </div>
+                            <div class="bg-purple-50 p-2 rounded border border-purple-100">
+                                <p class="text-[10px] text-slate-500">模式</p>
+                                <p id="demo-mode-label" class="text-xs font-bold text-purple-700">曲线</p>
+                            </div>
+                            <div class="bg-amber-50 p-2 rounded border border-amber-100">
+                                <p class="text-[10px] text-slate-500">能量</p>
+                                <p id="demo-energy" class="text-xs font-bold text-amber-700">0.62</p>
+                            </div>
                         </div>
                     </div>
                     <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white border border-blue-200">
                         <p class="text-xs text-slate-700 leading-snug">
-                            复制这一页时，只需要保留 canvas、控件和 `initInteractiveDemo()` 的对应逻辑，就可以替换成任意领域的动态图表或模拟。
+                            WebPPT 的重点不是把页面录成视频，而是让听众在现场看到变量如何改变模型行为。复制这一页时，只需要替换 canvas 中的模型和控件含义。
                         </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 5: Comparison Table -->
+        <!-- Slide 5: Report Templates -->
         <section id="page-5"
                  class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="对照表"
+                 data-nav="汇报模板"
                  data-part="PART 05"
+                 data-part-title="模板选择"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 05：模板选择</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">不同汇报场景的页面骨架</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 fade-in-up delay-100">
+                <div class="template-card">
+                    <p class="template-kicker">Academic</p>
+                    <h3>学术报告</h3>
+                    <p>问题背景 → 理论框架 → 公式推导 → 实验/模拟 → 结论。</p>
+                </div>
+                <div class="template-card">
+                    <p class="template-kicker">Teaching</p>
+                    <h3>课程教学</h3>
+                    <p>概念引入 → 直观动画 → 例题操作 → 误区对照 → 总结。</p>
+                </div>
+                <div class="template-card">
+                    <p class="template-kicker">Research</p>
+                    <h3>研究进展</h3>
+                    <p>目标 → 当前结果 → 瓶颈 → 下一步计划 → 风险。</p>
+                </div>
+                <div class="template-card">
+                    <p class="template-kicker">Project</p>
+                    <h3>产品/项目汇报</h3>
+                    <p>痛点 → 方案 → 流程演示 → 指标 → 路线图。</p>
+                </div>
+                <div class="template-card">
+                    <p class="template-kicker">Analytics</p>
+                    <h3>数据分析</h3>
+                    <p>指标概览 → 筛选对比 → 趋势解释 → 结论建议。</p>
+                </div>
+                <div class="template-card">
+                    <p class="template-kicker">Defense</p>
+                    <h3>答辩/立项</h3>
+                    <p>核心主张 → 创新点 → 可行性 → 质疑回应 → 收束页。</p>
+                </div>
+            </div>
+
+            <div class="ai-note-card fade-in-up delay-200 mt-4">
+                <h3 class="text-base font-serif font-bold text-academic-900 mb-2">AI 选型原则</h3>
+                <p class="text-xs text-slate-700 leading-snug">
+                    先判断汇报目标，再选择骨架；如果内容涉及模型、参数、流程、概率、对比或推导，应优先插入一页可操作的动态演示，而不是增加纯文字说明。
+                </p>
+            </div>
+        </section>
+
+        <!-- Slide 6: Control Library -->
+        <section id="page-6"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="控件库"
+                 data-part="PART 06"
+                 data-part-title="演示控件"
+                 data-group-start="true">
+            <div class="fade-in-up mb-4">
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 06：演示控件</span>
+                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">面向现场讲解的控件库</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 fade-in-up delay-100">
+                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500 space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 mb-2 block">滑块：阈值 <span id="control-threshold-value" class="text-academic-accent">50</span>%</label>
+                        <input id="control-threshold" type="range" min="10" max="90" value="50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-700 mb-2">分段按钮：视角</p>
+                        <div class="segmented-control">
+                            <button type="button" class="control-mode-btn active" data-control-mode="model">模型</button>
+                            <button type="button" class="control-mode-btn" data-control-mode="data">数据</button>
+                            <button type="button" class="control-mode-btn" data-control-mode="risk">风险</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-50 rounded-lg border border-slate-200 px-3 py-2">
+                        <span class="text-xs font-bold text-slate-700">开关：显示辅助层</span>
+                        <button id="control-overlay" type="button" class="toggle-switch active" aria-pressed="true"><span></span></button>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-700 mb-2">Stepper：推导步骤</p>
+                        <div class="flex items-center gap-2">
+                            <button id="control-step-prev" type="button" class="control-btn">上一步</button>
+                            <div id="control-step-label" class="flex-1 text-center text-xs font-bold text-academic-900 bg-blue-50 border border-blue-100 rounded-lg py-2">Step 1</div>
+                            <button id="control-step-next" type="button" class="control-btn">下一步</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="control-randomize" type="button" class="control-btn bg-sky-600 text-white border-sky-600 hover:bg-sky-500">重采样</button>
+                        <button id="control-compare" type="button" class="control-btn">切换 A/B</button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-5 border border-slate-200">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">控件必须改变可视化状态</h3>
+                            <p class="text-[11px] text-slate-500 leading-snug">每个按钮都连接到右侧预览，避免“只有样式、没有解释力”的装饰性控件。</p>
+                        </div>
+                        <div class="segmented-control w-full md:w-auto">
+                            <button type="button" class="control-tab-btn active" data-control-tab="overview">概览</button>
+                            <button type="button" class="control-tab-btn" data-control-tab="detail">细节</button>
+                            <button type="button" class="control-tab-btn" data-control-tab="compare">对比</button>
+                        </div>
+                    </div>
+                    <div id="control-preview-stage" class="control-preview-stage"></div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="demo-stat">
+                            <p>当前视角</p>
+                            <strong id="control-mode-label">模型</strong>
+                        </div>
+                        <div class="demo-stat">
+                            <p>辅助层</p>
+                            <strong id="control-overlay-label">开启</strong>
+                        </div>
+                        <div class="demo-stat">
+                            <p>对比方案</p>
+                            <strong id="control-compare-label">A</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Comparison Table -->
+        <section id="page-7"
+                 class="page-content hidden w-full max-w-7xl mx-auto"
+                 data-nav="对照表"
+                 data-part="PART 07"
                  data-part-title="比较展示"
                  data-group-start="true">
             <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 05：比较展示</span>
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 07：比较展示</span>
                 <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">观点对照表模板</h2>
             </div>
 
@@ -350,14 +511,14 @@
         </section>
 
         <!-- Slide 6: Closing -->
-        <section id="page-6"
+        <section id="page-8"
                  class="page-content hidden w-full max-w-7xl mx-auto"
                  data-nav="结论"
-                 data-part="PART 06"
+                 data-part="PART 08"
                  data-part-title="总结"
                  data-group-start="true">
             <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 06：总结</span>
+                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 08：总结</span>
                 <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">结论页模板</h2>
             </div>
 
