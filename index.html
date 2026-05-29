@@ -3,565 +3,1022 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebPPT 模板</title>
+    <title>WebPPT - Tri-Engine Interactive Deck</title>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
-        };
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['"Noto Serif SC"', 'serif']
-                    },
-                    colors: {
-                        academic: {
-                            900: '#0f172a',
-                            800: '#1e293b',
-                            700: '#334155',
-                            accent: '#0ea5e9'
-                        }
-                    }
-                }
-            }
-        };
-    </script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Framer Motion -->
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Inter:wght@400;600&family=Space+Grotesk:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-cyber { font-family: 'Orbitron', sans-serif; }
+        .font-academic-serif { font-family: 'Noto Serif SC', serif; }
+        .font-academic-sans { font-family: 'Inter', sans-serif; }
+        .font-syne { font-family: 'Syne', sans-serif; }
+        .font-space { font-family: 'Space Grotesk', sans-serif; }
+
+        #root { width: 100vw; height: 100vh; }
+        ::-webkit-scrollbar { display: none; }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: currentColor; cursor: pointer; margin-top: -6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(128,128,128,0.3); border-radius: 2px; }
+
+        @keyframes gradient-xy {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .dream-gradient-bg {
+            background: linear-gradient(-45deg, #FF00FF, #7DF9FF, #B026FF, #FFE600);
+            background-size: 400% 400%;
+            animation: gradient-xy 15s ease infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
+    </style>
 </head>
-<body class="theme-sky bg-slate-50 font-sans text-slate-800 flex h-screen overflow-hidden selection:bg-academic-accent selection:text-white relative has-watermark" style="--watermark-image: url('assets/nanjing-university-logo.png'); --watermark-opacity: 0.085;">
-    <canvas id="networkCanvas" class="absolute inset-0 z-0 opacity-60 pointer-events-none"></canvas>
+<body>
+    <div id="root"></div>
 
-    <aside class="w-56 bg-academic-900 text-white flex flex-col justify-between relative z-10 shadow-2xl shrink-0 overflow-y-auto" style="max-height: 100vh;">
-        <div class="p-5">
-            <div class="w-10 h-1 bg-academic-accent mb-4"></div>
-            <h1 id="deck-title" class="text-xl font-serif font-bold leading-tight mb-2">WebPPT 模板</h1>
-            <p class="text-slate-400 text-xs mb-6 uppercase tracking-widest flex items-center transition-all duration-300">
-                <span id="section-number" class="bg-academic-accent/20 text-academic-accent px-1.5 py-0.5 rounded mr-2 font-mono text-[10px] transition-all">封面</span>
-                <span id="section-title" class="transition-all">模板框架</span>
-            </p>
-            <nav id="slide-nav" class="space-y-1.5 text-xs"></nav>
-        </div>
-        <div class="p-5 text-[10px] text-slate-500 opacity-60">Reusable WebPPT</div>
-    </aside>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence } = window.Motion;
 
-    <main class="flex-1 relative z-10 overflow-y-auto overflow-x-hidden p-6 lg:p-8 flex flex-col items-center justify-center" id="main-scroll">
-        <!-- Slide 0: Cover -->
-        <section id="page-0"
-                 class="page-content w-full max-w-7xl mx-auto flex items-center justify-center relative"
-                 style="min-height: calc(100vh - 100px);"
-                 data-nav="封面"
-                 data-part="封面"
-                 data-part-title="模板框架">
-            <div class="absolute top-0 left-0 fade-in-up">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">WebPPT Template</span>
-            </div>
-            <div class="text-center max-w-4xl mx-auto px-4">
-                <div class="w-20 h-1 bg-academic-accent mx-auto mb-8"></div>
-                <h2 class="text-5xl md:text-6xl font-serif font-black text-academic-900 leading-tight mb-6 tracking-tight">可复用网页演示模板</h2>
-                <p class="text-xl text-slate-500 font-serif mb-10">现场交互演示 · 参数实验 · 数学公式 · 全屏放映 · AI 可读可改</p>
-                <div class="glass-card inline-block px-8 py-4 rounded-xl">
-                    <p class="text-xs font-bold text-slate-900 mb-2">使用方式</p>
-                    <p class="text-xs text-slate-700 leading-relaxed">复制页面 section，修改 data-nav / data-part / data-part-title，即可生成新的演示页。</p>
+        // --- 图标组件 ---
+        const IconTerminal = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>);
+        const IconCpu = ({ size=24, color="currentColor", className="" }) => (<svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>);
+        const IconNetwork = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"></rect><rect x="2" y="16" width="6" height="6" rx="1"></rect><rect x="9" y="2" width="6" height="6" rx="1"></rect><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"></path><path d="M12 12V8"></path></svg>);
+        const IconZap = ({ size=24, color="currentColor", className="" }) => (<svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>);
+        const IconMaximize = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>);
+        const IconMinimize = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>);
+        const IconPalette = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>);
+        const IconFingerprint = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"></path><path d="M5 19.5C5.5 18 6 15 6 11.5a6 6 0 0 1 12.01-.36"></path><path d="M12 22v-3"></path><path d="M9 20a4 4 0 0 1 6-2"></path><path d="M12 7.5a4.5 4.5 0 0 0-4.5 4.5c0 1.5.5 4 1.5 6"></path><path d="M15 17.5c-.5-1.5-1-4-1-6.5a2.5 2.5 0 0 0-5 0"></path></svg>);
+        const IconCheck = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>);
+        const IconChevronLeft = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>);
+        const IconChevronRight = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>);
+        const IconChevronDown = ({ size=24, color="currentColor", className="" }) => (<svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>);
+        const IconMenu = ({ size=24, color="currentColor" }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>);
+        const IconStar = ({ size=24, color="currentColor", className="" }) => (<svg width={size} height={size} className={className} viewBox="0 0 24 24" fill={color} stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>);
+        const IconX = ({ size=24, color="currentColor", className="" }) => (<svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
+
+        // --- LaTeX 公式渲染组件 ---
+        const MathTex = ({ tex, displayMode = false, className = "" }) => {
+            const html = window.katex ? window.katex.renderToString(tex, { throwOnError: false, displayMode }) : tex;
+            return <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
+        };
+
+        // --- 乱码解码文字动效 ---
+        const DecryptedText = ({ text, delay = 0, className = "", enabled = true, glitchColor = null }) => {
+            const [displayText, setDisplayText] = useState('');
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()';
+            useEffect(() => {
+                if (!enabled) { setDisplayText(text); return; }
+                let iteration = 0;
+                let interval = null;
+                const startAnimation = () => {
+                    interval = setInterval(() => {
+                        setDisplayText(text.split('').map((letter, index) => {
+                            if (index < iteration) return letter;
+                            return chars[Math.floor(Math.random() * chars.length)];
+                        }).join(''));
+                        if (iteration >= text.length) clearInterval(interval);
+                        iteration += 1 / 2;
+                    }, 30);
+                };
+                const timer = setTimeout(startAnimation, delay);
+                return () => { clearTimeout(timer); clearInterval(interval); };
+            }, [text, delay, enabled]);
+
+            if (glitchColor && displayText !== text && enabled) {
+                return <span className={className} style={{ color: glitchColor, textShadow: `2px 2px 0px ${glitchColor}80` }}>{displayText || text.replace(/./g, '_')}</span>;
+            }
+            return <span className={className}>{displayText || (enabled ? text.replace(/./g, '_') : text)}</span>;
+        };
+
+        // --- 纯 CSS 3D 量子态核心 (用于大型产品展示) ---
+        const QuantumCore = ({ theme }) => {
+            const isC = theme.id === 'cyber';
+            const isD = theme.id === 'dreamcore';
+            const isA = theme.id === 'academic';
+
+            return (
+                <div className="relative flex items-center justify-center w-64 h-64 md:w-[400px] md:h-[400px]" style={{ perspective: '1200px' }}>
+                    <motion.div
+                        className="absolute inset-0 w-full h-full"
+                        animate={{ rotateX: [0, 360], rotateY: [0, 180], rotateZ: [0, 360] }}
+                        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                        style={{ transformStyle: 'preserve-3d' }}
+                    >
+                        {/* 环 1 */}
+                        <div className={`absolute inset-0 m-auto w-full h-full rounded-full ${isD ? 'border-8 border-dashed' : (isC ? 'border-8 border-solid' : 'border-4 border-solid')}`}
+                             style={{ borderColor: isD ? '#FF00FF' : theme.primary, opacity: isA ? 0.2 : 0.8, transform: 'rotateX(0deg) rotateY(45deg)', boxShadow: isC ? `0 0 20px ${theme.primary}, inset 0 0 20px ${theme.primary}` : 'none' }}></div>
+
+                        {/* 环 2 */}
+                        <div className={`absolute inset-0 m-auto w-[85%] h-[85%] rounded-full ${isD ? 'border-8 border-dotted' : (isC ? 'border-[6px] border-solid' : 'border-2 border-solid')}`}
+                             style={{ borderColor: isD ? '#7DF9FF' : theme.secondary, opacity: isA ? 0.3 : 1, transform: 'rotateX(60deg) rotateY(0deg) rotateZ(30deg)', boxShadow: isC ? `0 0 15px ${theme.secondary}, inset 0 0 15px ${theme.secondary}` : 'none' }}></div>
+
+                        {/* 环 3 */}
+                        <div className={`absolute inset-0 m-auto w-[70%] h-[70%] rounded-full ${isD ? 'border-[12px] border-dashed' : (isC ? 'border-4 border-solid' : 'border-4 border-solid')}`}
+                             style={{ borderColor: isD ? '#FFE600' : (isC ? 'rgba(255,255,255,0.8)' : theme.primary), opacity: isA ? 0.1 : 0.6, transform: 'rotateX(30deg) rotateY(90deg)', boxShadow: isC ? `0 0 10px white` : 'none' }}></div>
+                    </motion.div>
+
+                    {/* 中心悬浮物 */}
+                    <motion.div
+                        className={`relative z-10 flex items-center justify-center w-24 h-24 md:w-32 md:h-32 ${isA ? 'bg-white shadow-xl border border-gray-100 rounded-full' : (isD ? 'bg-black border-4 border-[#FFE600] rounded-2xl' : 'bg-black border border-[#00F3FF] rounded-[2rem]')}`}
+                        style={{ boxShadow: isD ? '8px 8px 0 #FF00FF' : (isC ? `0 0 40px ${theme.secondary}` : '0 10px 30px rgba(0,0,0,0.1)') }}
+                        animate={{ y: [-15, 15, -15], rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                        {isD ? <IconStar size={64} color="#7DF9FF" /> : (isC ? <IconCpu size={64} color={theme.primary} /> : <MathTex tex="\Psi" displayMode={true} className="text-6xl text-[#4B0082] m-0 leading-none" />)}
+                    </motion.div>
                 </div>
-            </div>
-            <div class="absolute bottom-8 right-8 fade-in-up delay-300">
-                <p class="text-sm text-slate-600 mb-1 text-right">汇报人</p>
-                <p class="text-2xl font-serif font-bold text-academic-900">xx</p>
-            </div>
-        </section>
+            );
+        };
 
-        <!-- Slide 1: Basic Layout -->
-        <section id="page-1"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="基础版式"
-                 data-part="PART 01"
-                 data-part-title="内容组件">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 01：内容组件</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">基础版式与卡片系统</h2>
+        // --- 背景组件 ---
+        const ParticleGrid = ({ primaryColor }) => (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-30 transition-colors duration-700">
+                <div className="absolute inset-0 animate-[pulse_4s_ease-in-out_infinite]" style={{ backgroundImage: `radial-gradient(circle at center, ${primaryColor} 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
+                <div className="absolute inset-0 bg-black/80" />
             </div>
+        );
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fade-in-up delay-100">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500">
-                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">左侧重点卡片</h3>
-                    <p class="text-xs text-slate-700 leading-snug">
-                        适合承载核心定义、研究问题、重要结论。卡片采用浅色玻璃质感，适合学术报告与课程演示。
-                    </p>
-                </div>
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
-                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">右侧补充卡片</h3>
-                    <p class="text-xs text-slate-700 leading-snug">
-                        可放置案例、数据、公式解释或反例。颜色建议用于表达信息类型，而不是纯装饰。
-                    </p>
-                </div>
+        const DreamcoreBackground = () => (
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 dream-gradient-bg opacity-80"></div>
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPHBhdGggZD0iTTAgMGg4djhIMHoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]"></div>
+                <motion.div animate={{ y: [0, -30, 0], rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }} className="absolute top-20 left-20 opacity-40"><IconStar size={120} color="#FFE600" /></motion.div>
+                <motion.div animate={{ y: [0, 40, 0], rotate: [0, -15, 0] }} transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }} className="absolute bottom-20 right-32 opacity-30"><IconStar size={200} color="#00F3FF" /></motion.div>
             </div>
+        );
 
-            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-slate-50 to-white fade-in-up delay-200 mt-4">
-                <h3 class="text-base font-serif font-bold text-academic-900 mb-3">横向说明卡片</h3>
-                <p class="text-xs text-slate-700 leading-snug">
-                    横向卡片适合作为一个页面的导入、总结或关键转折。你可以把引用、背景说明、方法论提醒放在这里。
-                </p>
-            </div>
+        // --- 洛伦兹吸引子 Canvas 渲染器 ---
+        const LorenzCanvas = ({ sigma, rho, beta, theme }) => {
+            const canvasRef = useRef(null);
+            const paramsRef = useRef({ sigma, rho, beta });
 
-            <div class="grid grid-cols-3 gap-3 fade-in-up delay-300 mt-4">
-                <div class="text-center p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <p class="text-[10px] text-slate-600 mb-1">指标 A</p>
-                    <p class="text-lg font-bold text-slate-700">128</p>
-                </div>
-                <div class="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p class="text-[10px] text-slate-600 mb-1">指标 B</p>
-                    <p class="text-lg font-bold text-blue-600">87%</p>
-                </div>
-                <div class="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                    <p class="text-[10px] text-slate-600 mb-1">指标 C</p>
-                    <p class="text-lg font-bold text-emerald-600">+24</p>
-                </div>
-            </div>
+            useEffect(() => {
+                paramsRef.current = { sigma, rho, beta };
+            }, [sigma, rho, beta]);
 
-            <div class="glass-card rounded-xl p-5 fade-in-up delay-400 relative overflow-hidden mt-4">
-                <div class="absolute text-6xl font-serif text-slate-200 -top-4 left-2 leading-none select-none z-0">"</div>
-                <div class="relative z-10 pl-4">
-                    <p class="text-sm text-slate-700 leading-snug italic border-l-2 border-academic-accent pl-3">
-                        引用强调卡适合放置论文原句、核心判断或汇报中的转折句。左侧竖线和背景引号能让它与普通正文自然区分。
-                    </p>
-                </div>
-            </div>
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+                let x = 0.1, y = 0, z = 0;
 
-            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-blue-50 to-white border border-blue-200 fade-in-up delay-300 mt-4">
-                <h3 class="text-base font-serif font-bold text-academic-900 mb-3">页面外观设置</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="style-mode" class="text-xs font-bold text-slate-700 mb-2 block">风格模板</label>
-                        <select id="style-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
-                            <option value="theme-sky">学术蓝</option>
-                            <option value="theme-emerald">研究绿</option>
-                            <option value="theme-violet">技术紫</option>
-                            <option value="theme-rose">答辩红</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="background-mode" class="text-xs font-bold text-slate-700 mb-2 block">动态背景</label>
-                        <select id="background-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
-                            <option value="network">粒子网络</option>
-                            <option value="waves">流动波纹</option>
-                            <option value="off">关闭背景</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="watermark-mode" class="text-xs font-bold text-slate-700 mb-2 block">右上角水印</label>
-                        <select id="watermark-mode" class="w-full rounded-md bg-white border border-slate-200 text-slate-700 text-xs px-3 py-2.5 focus:outline-none focus:border-academic-accent">
-                            <option value="nju" data-image="assets/nanjing-university-logo.png" data-opacity="0.085">南京大学</option>
-                            <option value="seal" data-image="assets/watermark-academic-seal.svg" data-opacity="0.075">学术圆章</option>
-                            <option value="lab" data-image="assets/watermark-lab-mark.svg" data-opacity="0.08">实验室标识</option>
-                            <option value="none">关闭水印</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </section>
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const fadeColor = theme.id === 'cyber' ? 'rgba(5, 5, 5, 0.012)' : (theme.id === 'dreamcore' ? 'rgba(30, 10, 50, 0.018)' : 'rgba(248, 249, 250, 0.012)');
+                const strokeColor = theme.primary;
 
-        <!-- Slide 2: Formula Layout -->
-        <section id="page-2"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="公式页面"
-                 data-part="PART 02"
-                 data-part-title="数学表达"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 02：数学表达</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">公式与推导展示</h2>
-            </div>
+                const draw = () => {
+                    const dt = 0.005;
+                    ctx.beginPath();
+                    const scale = 7;
+                    const offsetX = canvas.width / 2;
+                    const offsetY = canvas.height - 30;
 
-            <div class="glass-card rounded-xl p-6 bg-gradient-to-br from-white to-blue-50 border-2 border-blue-300/40 fade-in-up delay-100 mb-4 text-center">
-                <p class="text-xs font-bold text-blue-700 tracking-wide uppercase mb-2">主公式区域</p>
-                <div class="bg-white/80 rounded-xl border border-blue-100 px-4 py-4 overflow-x-auto">
-                    <p class="font-serif text-base text-slate-800 whitespace-nowrap">$$E = mc^2, \qquad i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi$$</p>
-                </div>
-                <p class="text-xs text-slate-600 leading-snug mt-3">
-                    主公式建议居中放大，下方再用小卡片解释各参数含义。
-                </p>
-            </div>
+                    ctx.moveTo(offsetX + x * scale, offsetY - z * scale);
+                    for(let i = 0; i < 8; i++) {
+                        const { sigma: s, rho: r, beta: b } = paramsRef.current;
+                        const dx = s * (y - x);
+                        const dy = x * (r - z) - y;
+                        const dz = x * y - b * z;
+                        x += dx * dt;
+                        y += dy * dt;
+                        z += dz * dt;
+                        ctx.lineTo(offsetX + x * scale, offsetY - z * scale);
+                    }
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fade-in-up delay-200">
-                <div class="glass-card rounded-xl p-4 border-t-2 border-t-sky-500">
-                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">参数 A</h4>
-                    <p class="text-xs text-slate-700 leading-snug">解释参数的物理或业务含义。</p>
-                </div>
-                <div class="glass-card rounded-xl p-4 border-t-2 border-t-purple-500">
-                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">参数 B</h4>
-                    <p class="text-xs text-slate-700 leading-snug">说明约束条件和适用范围。</p>
-                </div>
-                <div class="glass-card rounded-xl p-4 border-t-2 border-t-emerald-500">
-                    <h4 class="text-sm font-serif font-bold text-academic-900 mb-2">结论</h4>
-                    <p class="text-xs text-slate-700 leading-snug">把公式导向的结果写成一句清楚的话。</p>
-                </div>
-            </div>
-        </section>
+                    ctx.fillStyle = fadeColor;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        <!-- Slide 3: Timeline -->
-        <section id="page-3"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="时间线"
-                 data-part="PART 03"
-                 data-part-title="叙事结构"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 03：叙事结构</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">可展开时间线</h2>
-            </div>
+                    animationFrameId = window.requestAnimationFrame(draw);
+                };
+                draw();
+                return () => window.cancelAnimationFrame(animationFrameId);
+            }, [theme]);
 
-            <div class="relative fade-in-up delay-100">
-                <div class="border-2-2 absolute border-opacity-20 border-slate-700 h-full border-l-2" style="left: 1.25rem;"></div>
-                <div class="timeline-item mb-2.5 relative pl-10 cursor-pointer active" onclick="toggleTimeline(this)">
-                    <div class="timeline-marker absolute w-4 h-4 bg-slate-100 border-2 border-slate-300 rounded-full z-10 transition-all duration-300" style="left: 0.8rem; top: 0.75rem;"></div>
-                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow transition-shadow">
-                        <div class="p-3 flex items-start justify-between">
-                            <div class="pr-3">
-                                <h3 class="text-sm font-bold text-academic-800 mb-1">阶段一</h3>
-                                <p class="text-slate-500 font-serif text-[10px] leading-tight">背景、问题或历史节点。</p>
+            let blendModeClass = 'mix-blend-multiply';
+            if (theme.id === 'cyber') blendModeClass = 'mix-blend-screen';
+            if (theme.id === 'dreamcore') blendModeClass = 'mix-blend-screen opacity-90';
+
+            return <canvas ref={canvasRef} width={600} height={400} className={`w-full h-full object-contain ${blendModeClass}`} />;
+        };
+
+        // --- 三大引擎配置 ---
+        const THEMES = {
+            academic: { id: 'academic', name: 'Academic', primary: '#4B0082', secondary: '#004b87', bg: '#F8F9FA', text: 'text-gray-900', fontTitle: 'font-academic-serif', fontBody: 'font-academic-sans' },
+            cyber: { id: 'cyber', name: 'Web3 Cyber', primary: '#39FF14', secondary: '#00F3FF', bg: '#050505', text: 'text-white', fontTitle: 'font-cyber', fontBody: 'font-mono' },
+            dreamcore: { id: 'dreamcore', name: 'Y2K Dreamcore', primary: '#FF00FF', secondary: '#7DF9FF', bg: '#1E0A32', text: 'text-white', fontTitle: 'font-syne', fontBody: 'font-space' }
+        };
+
+        const THEMES_ARRAY = [THEMES.academic, THEMES.cyber, THEMES.dreamcore];
+
+        // --- 幻灯片导航配置 ---
+        const SLIDE_TITLES = [
+            "首选项与概览",
+            "核心模型展示",
+            "基础计算架构",
+            "协同网络指标",
+            "非线性动力系统",
+            "核心文献演进"
+        ];
+        const SLIDE_SECTIONS = [
+            { start: 0, title: "开场设置" },
+            { start: 1, title: "核心展示" },
+            { start: 2, title: "架构指标" },
+            { start: 4, title: "动态演示" },
+            { start: 5, title: "文献脉络" }
+        ];
+        const TOTAL_SLIDES = SLIDE_TITLES.length;
+
+        // --- 主程序 ---
+        const Web3GeekDeck = () => {
+            const [currentSlide, setCurrentSlide] = useState(0);
+            const [direction, setDirection] = useState(1);
+            const [theme, setTheme] = useState(THEMES.dreamcore);
+            const [showWatermark, setShowWatermark] = useState(true);
+            const [isFullscreen, setIsFullscreen] = useState(false);
+            const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+            const containerRef = useRef(null);
+
+            const [lorenzParams, setLorenzParams] = useState({ sigma: 10, rho: 28, beta: 8/3 });
+            const [expandedTimelineId, setExpandedTimelineId] = useState('2026');
+
+            const reportData = {
+                title: "WEB3 与量子态计算的基础架构",
+                subtitle: "Web3 AI Era: Next-Gen Infrastructure",
+                presenter: "南京大学物理与人工智能实验室",
+                date: "2026年5月"
+            };
+
+            const timelineData = [
+                { id: '2009', year: '2009', isRed: false, title: 'Palmer, T. N. (2009). The Invariant Set Postulate...', desc: '提出“不变集理论”，用分形吸引子替代希尔伯特空间，并引入引力自能作为离散度的解释机制，解释宏观客观坍缩。' },
+                { id: '2014', year: '2014', isRed: false, title: 'Palmer, T. N. (2014). Lorenz, Gödel and Penrose...', desc: '结合洛伦兹混沌、哥德尔不完备定理与彭罗斯坍缩，证明决定论分形兼容因果律，回应“超决定论”的阴谋论批评。' },
+                { id: '2020', year: '2020', isRed: false, title: 'Palmer, T. N. (2020). Discretisation of the Bloch Sphere...', desc: '实现布洛赫球面的有理数离散化。利用数论证明反事实推理在分形几何中会落入无理数缝隙，由此质疑贝尔不等式在该几何框架中的适用性。' },
+                { id: '2026', year: '2026', isRed: true, title: 'Palmer, T. (2026). Rational quantum mechanics...', desc: <>定名“有理量子力学”（RaQM）。量化希尔伯特空间维度上限（<MathTex tex="N_{max} \approx 200-400" />），预言量子计算机可能因底层物理容量限制而出现非幺正散粒噪声，提出 Shor 算法物理可实现性受限的预言。</> }
+            ];
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.target.tagName === 'INPUT') return;
+                    if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === ' ') {
+                        setDirection(1);
+                        setCurrentSlide((prev) => Math.min(prev + 1, TOTAL_SLIDES - 1));
+                    } else if (e.key === 'ArrowLeft') {
+                        setDirection(-1);
+                        setCurrentSlide((prev) => Math.max(prev - 1, 0));
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
+
+            useEffect(() => {
+                const syncFullscreenState = () => {
+                    setIsFullscreen(Boolean(document.fullscreenElement));
+                };
+                document.addEventListener('fullscreenchange', syncFullscreenState);
+                return () => document.removeEventListener('fullscreenchange', syncFullscreenState);
+            }, []);
+
+            useEffect(() => {
+                const exitPseudoFullscreen = (e) => {
+                    if (e.key === 'Escape' && isFullscreen && !document.fullscreenElement) {
+                        setIsFullscreen(false);
+                    }
+                };
+                window.addEventListener('keydown', exitPseudoFullscreen);
+                return () => window.removeEventListener('keydown', exitPseudoFullscreen);
+            }, [isFullscreen]);
+
+            const toggleFullscreen = () => {
+                if (document.fullscreenEnabled) {
+                    if (!document.fullscreenElement) {
+                        containerRef.current?.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => setIsFullscreen(true));
+                    } else {
+                        document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => setIsFullscreen(false));
+                    }
+                } else {
+                    setIsFullscreen(!isFullscreen);
+                }
+            };
+
+            const handleThemeToggle = () => {
+                const currentIndex = THEMES_ARRAY.findIndex(t => t.id === theme.id);
+                const nextIndex = (currentIndex + 1) % THEMES_ARRAY.length;
+                setTheme(THEMES_ARRAY[nextIndex]);
+            };
+
+            const goToPreviousSlide = () => {
+                setDirection(-1);
+                setCurrentSlide((prev) => Math.max(prev - 1, 0));
+            };
+
+            const goToNextSlide = () => {
+                setDirection(1);
+                setCurrentSlide((prev) => Math.min(prev + 1, TOTAL_SLIDES - 1));
+            };
+
+            const isC = theme.id === 'cyber';
+            const isD = theme.id === 'dreamcore';
+            const isA = theme.id === 'academic';
+            const getSlideSectionTitle = (slideIndex) => {
+                let sectionTitle = SLIDE_SECTIONS[0].title;
+                SLIDE_SECTIONS.forEach((section) => {
+                    if (slideIndex >= section.start) sectionTitle = section.title;
+                });
+                return sectionTitle;
+            };
+
+            // -------------------------------------------------------------
+            // 幻灯片渲染分配器
+            // -------------------------------------------------------------
+            const renderSlideContent = (id) => {
+                // ------ 第 0 页：首页 ------
+                if (id === 0) {
+                    if (isD) return (
+                        <div className="flex flex-col h-full w-full items-center justify-center text-center z-10 relative">
+                            <div className="absolute top-10 -left-[22vw] w-[144vw] overflow-hidden bg-[#FF00FF] py-2 transform -rotate-2 border-y-4 border-black z-0 shadow-[4px_4px_0_#FFE600]">
+                                <div className="animate-marquee whitespace-nowrap font-space font-bold text-black text-xl tracking-widest">
+                                    {Array(10).fill("◆ NEO DREAMCORE ARCHITECTURE ◆ ").join("")}
+                                </div>
                             </div>
-                            <svg class="w-4 h-4 text-slate-400 transform transition-transform shrink-0 mt-0.5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <motion.div animate={{ y: [-10, 10, -10] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                                className="bg-white/20 backdrop-blur-xl border-4 border-black p-10 rounded-[3rem] shadow-[12px_12px_0_#7DF9FF] z-10 max-w-4xl w-full">
+                                <IconStar size={60} color="#FFE600" className="mx-auto mb-6 drop-shadow-[4px_4px_0_#000]" />
+                                <h1 className="text-4xl md:text-7xl font-black uppercase mb-6 font-syne text-[#FF00FF] drop-shadow-[4px_4px_0_#000] leading-tight">
+                                    <DecryptedText text={reportData.title} delay={100} enabled={true} glitchColor="#7DF9FF" />
+                                </h1>
+                                <h2 className="text-xl md:text-2xl font-bold mb-10 uppercase font-space bg-black text-[#7DF9FF] inline-block px-6 py-2 border-2 border-[#FF00FF] rounded-full shadow-[4px_4px_0_#FFE600]">
+                                    <DecryptedText text={reportData.subtitle} delay={600} enabled={true} />
+                                </h2>
+                                <div className="mt-4">
+                                    <p className="text-xl font-space font-bold text-black bg-[#FFE600] inline-block px-6 py-3 border-4 border-black shadow-[6px_6px_0_#FF00FF] rounded-xl transform rotate-1 hover:rotate-0 transition-transform">
+                                        <DecryptedText text={`PRESENTED BY // ${reportData.presenter}`} delay={900} enabled={true} />
+                                    </p>
+                                </div>
+                            </motion.div>
                         </div>
-                        <div class="timeline-content bg-slate-50 border-t border-slate-100 px-4">
-                            <p class="text-slate-700 leading-snug py-2.5 text-xs">展开后显示更完整的解释、引用或分析。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="timeline-item mb-2.5 relative pl-10 cursor-pointer" onclick="toggleTimeline(this)">
-                    <div class="timeline-marker absolute w-4 h-4 bg-slate-100 border-2 border-slate-300 rounded-full z-10 transition-all duration-300" style="left: 0.8rem; top: 0.75rem;"></div>
-                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow transition-shadow">
-                        <div class="p-3 flex items-start justify-between">
-                            <div class="pr-3">
-                                <h3 class="text-sm font-bold text-academic-800 mb-1">阶段二</h3>
-                                <p class="text-slate-500 font-serif text-[10px] leading-tight">方法、证据或关键转折。</p>
+                    );
+                    if (isC) return (
+                        <motion.div className="flex flex-col h-full w-full items-center justify-center text-center z-10" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, type: 'spring', bounce: 0.4 }}>
+                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 15, ease: 'linear' }} className="mb-8" style={{ color: theme.primary }}><IconZap size={80} color={theme.primary} /></motion.div>
+                            <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-6 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] text-transparent bg-clip-text bg-gradient-to-r font-cyber" style={{ backgroundImage: `linear-gradient(to right, ${theme.primary}, ${theme.secondary})` }}>
+                                <DecryptedText text={reportData.title} delay={100} enabled={true} />
+                            </h1>
+                            <h2 className="text-xl md:text-2xl font-bold tracking-widest mb-12 uppercase font-mono" style={{ color: theme.secondary }}>
+                                <DecryptedText text={reportData.subtitle} delay={600} enabled={true} />
+                            </h2>
+                            <div className="px-8 py-4 rounded-lg border backdrop-blur-md bg-white/5" style={{ borderColor: `${theme.secondary}40` }}>
+                                <p className="text-lg font-mono tracking-widest" style={{ color: theme.primary }}><DecryptedText text={`汇报人 // ${reportData.presenter}`} delay={900} enabled={true} /></p>
                             </div>
-                            <svg class="w-4 h-4 text-slate-400 transform transition-transform shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                        <div class="timeline-content bg-slate-50 border-t border-slate-100 px-4">
-                            <p class="text-slate-700 leading-snug py-2.5 text-xs">这里可以放论文、里程碑、产品版本或项目节点。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Slide 4: Interactive Demo -->
-        <section id="page-4"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="动态演示"
-                 data-part="PART 04"
-                 data-part-title="交互组件"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 04：交互组件</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">多参数交互实验台</h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 fade-in-up delay-100">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-sky-500">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                        <div>
-                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">现场可操作的概念模拟</h3>
-                            <p class="text-[11px] text-slate-500 leading-snug">频率、幅度、阻尼和显示模式会实时改变曲线与采样点状态。</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button id="demo-toggle" class="px-3 py-2 text-xs font-bold rounded-lg bg-sky-600 text-white hover:bg-sky-500 transition-colors">暂停</button>
-                            <button id="demo-reset" class="px-3 py-2 text-xs font-bold rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">重置</button>
-                        </div>
-                    </div>
-                    <canvas id="demo-canvas" width="900" height="360" class="w-full h-[300px] md:h-[360px] rounded-lg bg-white border border-slate-200"></canvas>
-                </div>
-
-                <div class="space-y-3">
-                    <div class="glass-card rounded-xl p-4 border border-slate-200">
-                        <label class="text-xs font-bold text-slate-700 mb-2 block">频率：<span id="demo-frequency-value" class="text-academic-accent">3</span>x</label>
-                        <input id="demo-frequency" type="range" min="1" max="8" value="3" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
-                    </div>
-                    <div class="glass-card rounded-xl p-4 border border-slate-200">
-                        <label class="text-xs font-bold text-slate-700 mb-2 block">幅度：<span id="demo-amplitude-value" class="text-academic-accent">62</span>%</label>
-                        <input id="demo-amplitude" type="range" min="20" max="95" value="62" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
-                    </div>
-                    <div class="glass-card rounded-xl p-4 border border-slate-200">
-                        <label class="text-xs font-bold text-slate-700 mb-2 block">阻尼：<span id="demo-damping-value" class="text-academic-accent">18</span>%</label>
-                        <input id="demo-damping" type="range" min="0" max="65" value="18" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
-                    </div>
-                    <div class="glass-card rounded-xl p-4 border border-slate-200">
-                        <p class="text-xs font-bold text-slate-700 mb-2">显示模式</p>
-                        <div class="segmented-control">
-                            <button type="button" class="demo-mode-btn active" data-demo-mode="wave">曲线</button>
-                            <button type="button" class="demo-mode-btn" data-demo-mode="samples">采样</button>
-                            <button type="button" class="demo-mode-btn" data-demo-mode="energy">能量</button>
-                        </div>
-                    </div>
-                    <div class="glass-card rounded-xl p-4 border border-slate-200">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">当前状态</p>
-                        <div class="grid grid-cols-2 gap-2 text-center">
-                            <div class="bg-sky-50 p-2 rounded border border-sky-100">
-                                <p class="text-[10px] text-slate-500">帧数</p>
-                                <p id="demo-frame" class="text-xs font-bold text-sky-700">0</p>
+                        </motion.div>
+                    );
+                    return (
+                        <motion.div className="flex flex-col h-full w-full justify-center text-left pl-12 z-10" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }}>
+                            <div className="w-16 h-2 mb-8" style={{ backgroundColor: theme.primary }}></div>
+                            <h1 className="text-4xl md:text-6xl font-bold mb-4 font-academic-serif leading-tight text-gray-900">{reportData.title}</h1>
+                            <h2 className="text-xl md:text-2xl font-normal mb-16 text-gray-600 font-academic-sans">{reportData.subtitle}</h2>
+                            <div className="border-l-4 pl-4 flex flex-col gap-2 font-academic-sans" style={{ borderColor: theme.secondary }}>
+                                <p className="text-lg text-gray-800 font-semibold">{reportData.presenter}</p>
+                                <p className="text-md text-gray-500">{reportData.date}</p>
                             </div>
-                            <div class="bg-emerald-50 p-2 rounded border border-emerald-100">
-                                <p class="text-[10px] text-slate-500">状态</p>
-                                <p id="demo-status" class="text-xs font-bold text-emerald-700">运行中</p>
+                        </motion.div>
+                    );
+                }
+
+                // ------ 第 1 页 (NEW)：核心产品发布会展示 ------
+                if (id === 1) {
+                    return (
+                        <div className="flex flex-col h-full w-full items-center justify-center relative overflow-hidden z-10">
+                            {/* 巨型背景震撼文字 - 修复截断并调整位置 */}
+                            <div className="absolute inset-0 flex items-center justify-between w-full px-8 md:px-16 select-none pointer-events-none opacity-80 z-0">
+                                <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 1, type: 'spring' }}
+                                    className={`text-[16vw] md:text-[14vw] font-black tracking-tighter leading-none whitespace-nowrap
+                                        ${isD ? 'font-syne text-[#FF00FF] drop-shadow-[8px_8px_0_#FFE600]'
+                                             : (isC ? 'font-cyber text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 opacity-40'
+                                                    : 'font-academic-serif text-gray-200 opacity-60')}`}>
+                                    {isD ? '幻象' : (isC ? '算力' : '不变')}
+                                </motion.div>
+                                <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3, duration: 1, type: 'spring' }}
+                                    className={`text-[16vw] md:text-[14vw] font-black tracking-tighter leading-none whitespace-nowrap
+                                        ${isD ? 'font-syne text-[#7DF9FF] drop-shadow-[8px_8px_0_#B026FF]'
+                                             : (isC ? 'font-cyber text-transparent bg-clip-text bg-gradient-to-l from-gray-700 to-gray-900 opacity-40'
+                                                    : 'font-academic-serif text-gray-200 opacity-60')}`}>
+                                    {isD ? '现实' : (isC ? '涌现' : '演化')}
+                                </motion.div>
                             </div>
-                            <div class="bg-purple-50 p-2 rounded border border-purple-100">
-                                <p class="text-[10px] text-slate-500">模式</p>
-                                <p id="demo-mode-label" class="text-xs font-bold text-purple-700">曲线</p>
+
+                            {/* 渐变遮罩以突出中心 3D 物体深度 - 修复条形生硬阴影 */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                <div className="w-full h-full transform"
+                                     style={{
+                                         background: `radial-gradient(circle at center, ${theme.bg} ${isD ? '14%' : '25%'}, transparent ${isD ? '42%' : '65%'})`,
+                                         opacity: isD ? 0.45 : (isA ? 0.8 : 0.85)
+                                     }}>
+                                </div>
                             </div>
-                            <div class="bg-amber-50 p-2 rounded border border-amber-100">
-                                <p class="text-[10px] text-slate-500">能量</p>
-                                <p id="demo-energy" class="text-xs font-bold text-amber-700">0.62</p>
+
+                            {/* 核心 3D 旋转模型 */}
+                            <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', bounce: 0.6, duration: 1.2 }} className="z-20 relative my-auto">
+                                <QuantumCore theme={theme} />
+                            </motion.div>
+
+                            {/* 底部描述面板 */}
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }}
+                                className={`absolute bottom-12 md:bottom-24 z-30 flex flex-col items-center text-center max-w-2xl px-6
+                                    ${isD ? 'bg-white border-4 border-black p-4 shadow-[8px_8px_0_#FF00FF] transform rotate-1'
+                                          : (isC ? 'bg-black/60 backdrop-blur-md border border-[#39FF14]40 p-6 rounded-2xl'
+                                                 : 'bg-white/80 backdrop-blur-sm border border-gray-200 p-6 rounded-xl shadow-lg')}`}>
+                                <h3 className={`text-xl md:text-3xl font-bold mb-2 ${isD ? 'font-syne text-black' : (isC ? `font-cyber text-[${theme.primary}]` : 'font-academic-serif text-gray-900')}`} style={isC ? {color: theme.primary} : {}}>
+                                    {isD ? <DecryptedText text="NEO-UTOPIA ENGINE v9" /> : (isC ? <DecryptedText text="量子张量引擎核心 (QTE)" /> : "基于不变集理论的态空间演化模型")}
+                                </h3>
+                                <p className={`text-sm md:text-base leading-relaxed mt-2 ${isD ? 'font-space text-black font-bold' : (isC ? 'font-mono text-gray-400' : 'font-academic-sans text-gray-600')}`}>
+                                    {isD ? "打破物理维度限制的终极渲染兵器。虚拟与现实的边界已被重新定义。"
+                                         : (isC ? "重构高维计算拓扑，实现万亿级参数的毫秒级时延响应与自监督涌现。"
+                                                : "摒弃传统的线性叠加假设，采用非线性动力学中的分形吸引子构建底层物理图像，确保宏观实在性。")}
+                                </p>
+                            </motion.div>
+                        </div>
+                    );
+                }
+
+                // ------ 第 2 页：架构页 ------
+                if (id === 2) {
+                    if (isD) return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 h-full items-center z-10 w-full">
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring' }} className="space-y-6">
+                                <div className="bg-[#7DF9FF] border-4 border-black rounded-2xl shadow-[8px_8px_0_#FF00FF] p-6 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full bg-black text-[#7DF9FF] font-space font-bold px-4 py-1 flex justify-between items-center text-xs">
+                                        <span>SYSTEM.EXE</span>
+                                        <div className="flex gap-2"><div className="w-3 h-3 rounded-full bg-[#FF00FF]"></div><div className="w-3 h-3 rounded-full bg-[#FFE600]"></div></div>
+                                    </div>
+                                    <h2 className="text-3xl font-bold font-syne uppercase mt-6 mb-4 text-black"><DecryptedText text="Quantum Optics Nodes" delay={100} enabled={true} glitchColor="#FF00FF" /></h2>
+                                    <p className="text-black text-lg leading-relaxed font-space font-semibold bg-white/50 p-4 border-2 border-black rounded-lg">
+                                        利用分布式算力网络与前沿实验范式，张量处理节点已实现资源确权。底层态演化遵循 <MathTex tex="i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi" className="text-[#FF00FF] mx-1 text-xl drop-shadow-[2px_2px_0_#000]" /> ，确保高并发。
+                                    </p>
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    {['Higgsfield AI 视频生成矩阵', 'Nexus 分布式 Mod 协议', 'Zero-Knowledge 零知识证明层'].map((item, i) => (
+                                        <motion.div key={i} whileHover={{ scale: 1.02, x: 10 }} className="flex items-center space-x-3 text-black font-space font-bold bg-[#FFE600] p-4 rounded-xl border-4 border-black shadow-[4px_4px_0_#B026FF] cursor-pointer">
+                                            <IconTerminal size={20} color="#FF00FF" /><DecryptedText text={item} delay={300 + i * 150} enabled={true} />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                            <motion.div initial={{ scale: 0.8, opacity: 0, rotate: -5 }} animate={{ scale: 1, opacity: 1, rotate: 0 }} transition={{ type: 'spring', bounce: 0.5 }}
+                                className="relative h-[400px] w-full rounded-3xl border-4 border-black overflow-hidden flex flex-col items-center justify-center bg-[#FF00FF] shadow-[12px_12px_0_#7DF9FF]">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#000_2px,transparent_2px)] opacity-20" style={{ backgroundSize: '20px 20px' }} />
+                                <motion.div animate={{ rotateY: 360 }} transition={{ repeat: Infinity, duration: 5, ease: "linear" }} className="z-10 bg-white p-6 rounded-full border-4 border-black shadow-[6px_6px_0_#FFE600]">
+                                    <IconCpu size={100} color="#B026FF" />
+                                </motion.div>
+                                <div className="z-10 font-syne font-black text-xl text-black bg-[#7DF9FF] px-4 py-2 mt-8 border-4 border-black shadow-[4px_4px_0_#fff] transform -rotate-3">
+                                    <DecryptedText text="COMPUTE_CORE_ACTIVE" delay={900} enabled={true} />
+                                </div>
+                            </motion.div>
+                        </div>
+                    );
+                    if (isC) return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 h-full items-center z-10 w-full">
+                            <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="space-y-6">
+                                <h2 className="text-3xl md:text-4xl font-bold border-l-4 pl-4 font-cyber uppercase shadow-sm" style={{ color: theme.primary, borderColor: theme.secondary }}><DecryptedText text="Quantum Optics Nodes" delay={100} enabled={true} /></h2>
+                                <p className="text-gray-400 text-base md:text-lg leading-relaxed font-mono bg-black/40 p-4 border border-white/5 rounded-lg">
+                                    利用分布式算力网络与前沿实验范式，张量处理节点已实现资源确权。底层态演化遵循 <MathTex tex="i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi" className="text-[#00F3FF] mx-1" /> ，确保多维数据流的高并发处理。
+                                </p>
+                                <ul className="space-y-4">
+                                    {['Higgsfield AI 视频生成矩阵', 'Nexus 分布式 Mod 协议', 'Zero-Knowledge 零知识证明层'].map((item, i) => (
+                                        <motion.li key={i} whileHover={{ x: 10, backgroundColor: `${theme.primary}15`, borderColor: `${theme.primary}80` }} className="flex items-center space-x-3 text-gray-300 font-mono cursor-pointer bg-white/5 p-4 rounded-lg border border-white/10 transition-all">
+                                            <IconTerminal size={20} color={theme.secondary} /><DecryptedText text={item} delay={300 + i * 150} enabled={true} />
+                                        </motion.li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+                            <motion.div initial={{ scale: 0.5, opacity: 0, rotateY: 90 }} animate={{ scale: 1, opacity: 1, rotateY: 0 }} transition={{ delay: 0.4, type: 'spring' }}
+                                className="relative h-[300px] md:h-[450px] w-full rounded-2xl border overflow-hidden backdrop-blur-xl flex flex-col items-center justify-center" style={{ borderColor: `${theme.primary}80`, background: `linear-gradient(to bottom right, rgba(0,0,0,0.8), ${theme.secondary}20)`, boxShadow: `0 0 40px ${theme.primary}33` }}>
+                                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8cGF0aCBkPSJNMCAwaDR2NEgwaC00eiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iMC4xIi8+Cjwvc3ZnPg==')] opacity-50" />
+                                <IconCpu size={140} color={theme.secondary} className="mb-6 z-10" />
+                                <div className="z-10 font-mono text-xs md:text-sm tracking-widest text-center px-2" style={{ color: theme.primary }}><DecryptedText text="COMPUTE_CORE_ACTIVE" delay={900} enabled={true} /></div>
+                            </motion.div>
+                        </div>
+                    );
+                    return (
+                        <div className="flex flex-col h-full z-10 w-full px-8">
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="mb-10">
+                                <h2 className="text-3xl font-bold font-academic-serif text-gray-900 border-b-2 pb-2 inline-block" style={{ borderColor: theme.primary }}>计算节点架构与演化方程</h2>
+                            </motion.div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 flex-grow items-start">
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="space-y-6">
+                                    <p className="text-gray-700 text-lg leading-relaxed font-academic-sans">在分布式算力网络的物理学建模中，我们需要确保张量处理节点的能量演化满足基础量子力学定律。</p>
+                                    <ul className="space-y-3 list-none font-academic-sans">
+                                        {['多维数据流的高并发验证', '分布式算力确权与分配机制', '态空间的实时叠加态推演'].map((item, i) => (
+                                            <li key={i} className="flex items-start text-gray-800 text-lg">
+                                                <IconCheck size={24} color={theme.primary} className="mr-3 flex-shrink-0 mt-0.5" /><span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </motion.div>
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] p-8 border border-gray-100 flex flex-col justify-center items-center h-64 relative">
+                                    <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: theme.primary }}></div>
+                                    <p className="text-gray-500 font-academic-sans text-sm mb-4">核心演化方程 (Schrödinger Equation)</p>
+                                    <MathTex tex="i\hbar\frac{\partial}{\partial t}\Psi = \hat{H}\Psi" displayMode={true} className="text-3xl text-gray-900" />
+                                </motion.div>
                             </div>
                         </div>
-                    </div>
-                    <div class="glass-card rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white border border-blue-200">
-                        <p class="text-xs text-slate-700 leading-snug">
-                            WebPPT 的重点不是把页面录成视频，而是让听众在现场看到变量如何改变模型行为。复制这一页时，只需要替换 canvas 中的模型和控件含义。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    );
+                }
 
-        <!-- Slide 5: Report Templates -->
-        <section id="page-5"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="汇报模板"
-                 data-part="PART 05"
-                 data-part-title="模板选择"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 05：模板选择</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">不同汇报场景的页面骨架</h2>
-            </div>
+                // ------ 第 3 页：指标页 ------
+                if (id === 3) {
+                    if (isD) return (
+                        <div className="flex flex-col items-center justify-center h-full space-y-10 md:space-y-16 z-10 w-full px-8 relative">
+                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute right-0 top-10 opacity-50 z-0"><IconStar size={180} color="#7DF9FF" /></motion.div>
+                            <motion.h2 initial={{ y: -50 }} animate={{ y: 0 }} className="text-4xl md:text-5xl font-black font-syne text-[#FFE600] drop-shadow-[4px_4px_0_#000] text-center uppercase z-10 border-b-8 border-[#FF00FF] pb-4">
+                                <DecryptedText text="DECENTRALIZED SYNERGY" delay={100} enabled={true} glitchColor="#7DF9FF" />
+                            </motion.h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 fade-in-up delay-100">
-                <div class="template-card">
-                    <p class="template-kicker">Academic</p>
-                    <h3>学术报告</h3>
-                    <p>问题背景 → 理论框架 → 公式推导 → 实验/模拟 → 结论。</p>
-                </div>
-                <div class="template-card">
-                    <p class="template-kicker">Teaching</p>
-                    <h3>课程教学</h3>
-                    <p>概念引入 → 直观动画 → 例题操作 → 误区对照 → 总结。</p>
-                </div>
-                <div class="template-card">
-                    <p class="template-kicker">Research</p>
-                    <h3>研究进展</h3>
-                    <p>目标 → 当前结果 → 瓶颈 → 下一步计划 → 风险。</p>
-                </div>
-                <div class="template-card">
-                    <p class="template-kicker">Project</p>
-                    <h3>产品/项目汇报</h3>
-                    <p>痛点 → 方案 → 流程演示 → 指标 → 路线图。</p>
-                </div>
-                <div class="template-card">
-                    <p class="template-kicker">Analytics</p>
-                    <h3>数据分析</h3>
-                    <p>指标概览 → 筛选对比 → 趋势解释 → 结论建议。</p>
-                </div>
-                <div class="template-card">
-                    <p class="template-kicker">Defense</p>
-                    <h3>答辩/立项</h3>
-                    <p>核心主张 → 创新点 → 可行性 → 质疑回应 → 收束页。</p>
-                </div>
-            </div>
-
-            <div class="ai-note-card fade-in-up delay-200 mt-4">
-                <h3 class="text-base font-serif font-bold text-academic-900 mb-2">AI 选型原则</h3>
-                <p class="text-xs text-slate-700 leading-snug">
-                    先判断汇报目标，再选择骨架；如果内容涉及模型、参数、流程、概率、对比或推导，应优先插入一页可操作的动态演示，而不是增加纯文字说明。
-                </p>
-            </div>
-        </section>
-
-        <!-- Slide 6: Control Library -->
-        <section id="page-6"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="控件库"
-                 data-part="PART 06"
-                 data-part-title="演示控件"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 06：演示控件</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">面向现场讲解的控件库</h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 fade-in-up delay-100">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500 space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-700 mb-2 block">滑块：阈值 <span id="control-threshold-value" class="text-academic-accent">50</span>%</label>
-                        <input id="control-threshold" type="range" min="10" max="90" value="50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer slider">
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-700 mb-2">分段按钮：视角</p>
-                        <div class="segmented-control">
-                            <button type="button" class="control-mode-btn active" data-control-mode="model">模型</button>
-                            <button type="button" class="control-mode-btn" data-control-mode="data">数据</button>
-                            <button type="button" class="control-mode-btn" data-control-mode="risk">风险</button>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl z-10">
+                                {[
+                                    { icon: IconNetwork, label: 'Crunchbase 数据预言机', value: '99.9%', color: '#FF00FF', bg: '#7DF9FF' },
+                                    { icon: IconZap, label: 'Bitget 链上结算延迟', value: '12ms', color: '#FFE600', bg: '#B026FF' },
+                                    { icon: IconCpu, label: 'TXYZ 学术检索引擎', value: 'v2.0', color: '#7DF9FF', bg: '#FF00FF' }
+                                ].map((stat, i) => (
+                                    <motion.div key={i} initial={{ y: 100, rotate: (i-1)*5 }} animate={{ y: 0, rotate: (i-1)*5 }} whileHover={{ scale: 1.1, rotate: 0 }}
+                                        className="relative p-8 rounded-[2rem] flex flex-col items-center text-center border-4 border-black shadow-[8px_8px_0_rgba(0,0,0,1)] transition-transform cursor-pointer"
+                                        style={{ backgroundColor: stat.bg }}>
+                                        <div className="bg-white p-4 rounded-full border-4 border-black mb-4 shadow-[4px_4px_0_#000]">
+                                            <stat.icon size={40} color="black" />
+                                        </div>
+                                        <h3 className="text-black font-space font-bold mb-4 text-sm md:text-lg border-b-2 border-black pb-2 px-2 bg-white/50 rounded"><DecryptedText text={stat.label} delay={300 + i * 150} enabled={true} /></h3>
+                                        <div className="text-5xl font-black font-syne text-white drop-shadow-[3px_3px_0_#000]" style={{ textShadow: `4px 4px 0 #000, -2px -2px 0 ${stat.color}` }}>{stat.value}</div>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-50 rounded-lg border border-slate-200 px-3 py-2">
-                        <span class="text-xs font-bold text-slate-700">开关：显示辅助层</span>
-                        <button id="control-overlay" type="button" class="toggle-switch active" aria-pressed="true"><span></span></button>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-700 mb-2">Stepper：推导步骤</p>
-                        <div class="flex items-center gap-2">
-                            <button id="control-step-prev" type="button" class="control-btn">上一步</button>
-                            <div id="control-step-label" class="flex-1 text-center text-xs font-bold text-academic-900 bg-blue-50 border border-blue-100 rounded-lg py-2">Step 1</div>
-                            <button id="control-step-next" type="button" class="control-btn">下一步</button>
+                    );
+                    if (isC) return (
+                        <div className="flex flex-col items-center justify-center h-full space-y-10 md:space-y-16 z-10 w-full px-8">
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="mb-4 text-center">
+                                <h2 className="text-3xl md:text-4xl font-bold font-cyber tracking-widest text-center uppercase" style={{ color: theme.secondary }}>
+                                    <DecryptedText text="DECENTRALIZED SYNERGY" delay={100} enabled={true} />
+                                </h2>
+                            </motion.div>
+                            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', bounce: 0.5 }} className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 w-full max-w-6xl">
+                                {[
+                                    { icon: IconNetwork, label: 'Crunchbase 数据预言机', value: '99.9%' },
+                                    { icon: IconZap, label: 'Bitget 链上结算延迟', value: '12ms' },
+                                    { icon: IconCpu, label: 'TXYZ 学术检索引擎', value: 'v2.0' }
+                                ].map((stat, i) => (
+                                    <motion.div key={i} whileHover={{ y: -15, scale: 1.05, boxShadow: `0 0 30px ${theme.primary}4D` }}
+                                        className="relative bg-black/60 backdrop-blur-lg border p-6 md:p-10 rounded-xl flex flex-col items-center text-center group overflow-hidden transition-all duration-300"
+                                        style={{ borderColor: `${theme.primary}4D` }}>
+                                        <div className="absolute top-0 left-0 w-full h-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{ backgroundImage: `linear-gradient(to right, transparent, ${theme.primary}, transparent)` }} />
+                                        <stat.icon size={56} color={theme.secondary} className="mb-6 transition-all duration-300" />
+                                        <h3 className="text-gray-400 font-mono mb-3 text-sm md:text-lg"><DecryptedText text={stat.label} delay={300 + i * 150} enabled={true} /></h3>
+                                        <div className="text-4xl md:text-5xl font-bold font-mono" style={{ color: theme.primary, filter: `drop-shadow(0 0 10px ${theme.primary}80)` }}>{stat.value}</div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
                         </div>
+                    );
+                    return (
+                        <div className="flex flex-col items-center justify-center h-full space-y-10 md:space-y-16 z-10 w-full px-8">
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="mb-4 text-center">
+                                <h2 className="text-3xl font-bold font-academic-serif text-gray-900 mb-2">去中心化协同网络指标</h2>
+                                <p className="text-gray-500 font-academic-sans text-lg">Decentralized Synergy Metrics</p>
+                            </motion.div>
+                            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="flex-grow flex items-center justify-center w-full">
+                                <table className="w-full max-w-4xl border-collapse bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+                                    <thead className="font-academic-sans text-white text-left" style={{ backgroundColor: theme.primary }}>
+                                        <tr>
+                                            <th className="py-4 px-6 font-semibold">协同模块 (Module)</th>
+                                            <th className="py-4 px-6 font-semibold">核心指标 (Key Metric)</th>
+                                            <th className="py-4 px-6 font-semibold">当前状态 (Status)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="font-academic-sans text-gray-800">
+                                        <tr className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 font-medium">Crunchbase 数据预言机</td>
+                                            <td className="py-4 px-6 text-2xl font-bold" style={{ color: theme.secondary }}>99.9%</td>
+                                            <td className="py-4 px-6"><span className="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm">运行中</span></td>
+                                        </tr>
+                                        <tr className="border-b border-gray-200 bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 font-medium">Bitget 链上结算延迟</td>
+                                            <td className="py-4 px-6 text-2xl font-bold" style={{ color: theme.secondary }}>12ms</td>
+                                            <td className="py-4 px-6"><span className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm">极速</span></td>
+                                        </tr>
+                                        <tr className="hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 font-medium">TXYZ 学术检索引擎</td>
+                                            <td className="py-4 px-6 text-2xl font-bold" style={{ color: theme.secondary }}>v2.0</td>
+                                            <td className="py-4 px-6"><span className="bg-purple-100 text-purple-800 py-1 px-3 rounded-full text-sm">已部署</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </motion.div>
+                        </div>
+                    );
+                }
+
+                // ------ 第 4 页：洛伦兹吸引子 ------
+                if (id === 4) {
+                    const updateLorenzParam = (key, value) => {
+                        setLorenzParams((prev) => ({...prev, [key]: parseFloat(value)}));
+                    };
+
+                    const setLorenzParamFromPointer = (item, currentTarget, clientX) => {
+                        const rect = currentTarget.getBoundingClientRect();
+                        const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+                        const rawValue = item.min + ratio * (item.max - item.min);
+                        const steppedValue = item.min + Math.round((rawValue - item.min) / item.step) * item.step;
+                        updateLorenzParam(item.key, Number(steppedValue.toFixed(4)));
+                    };
+
+                    const renderLorenzSlider = (item, isDream) => {
+                        const value = lorenzParams[item.key];
+                        const percent = ((value - item.min) / (item.max - item.min)) * 100;
+                        const trackClass = isDream
+                            ? 'h-4 rounded-full bg-black border-2 border-black shadow-[2px_2px_0_#FF00FF]'
+                            : `h-3 rounded-full ${isC ? 'bg-white/10' : 'bg-gray-200'}`;
+                        const fillColor = isDream ? '#FF00FF' : theme.primary;
+                        const thumbClass = isDream
+                            ? 'w-7 h-7 -top-[7px] border-4 border-black bg-[#7DF9FF] shadow-[3px_3px_0_#FFE600]'
+                            : `w-5 h-5 -top-1 ${isC ? 'border border-white/40' : 'border border-white'} shadow-md`;
+
+                        return (
+                            <div key={item.key} className={isDream ? 'space-y-3 bg-white border-2 border-black p-3 rounded-xl shadow-[4px_4px_0_#000]' : 'space-y-2'}>
+                                <div className={`flex justify-between ${isDream ? 'font-syne font-bold text-black' : 'font-mono text-sm'}`}>
+                                    <span style={isDream ? {} : { color: isC ? theme.secondary : theme.primary }}>{item.label}</span>
+                                    <span className={isDream ? 'text-[#FF00FF]' : (isC ? 'text-white' : 'text-gray-800')}>{value.toFixed(2)}</span>
+                                </div>
+                                <div
+                                    role="slider"
+                                    tabIndex="0"
+                                    aria-label={item.label}
+                                    aria-valuemin={item.min}
+                                    aria-valuemax={item.max}
+                                    aria-valuenow={value}
+                                    className={`relative w-full cursor-ew-resize touch-none select-none outline-none focus:ring-2 ${isDream ? 'focus:ring-[#7DF9FF]' : 'focus:ring-indigo-300'} ${trackClass}`}
+                                    onPointerDown={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.setPointerCapture(e.pointerId);
+                                        setLorenzParamFromPointer(item, e.currentTarget, e.clientX);
+                                    }}
+                                    onPointerMove={(e) => {
+                                        if (e.buttons === 1) setLorenzParamFromPointer(item, e.currentTarget, e.clientX);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                                        e.preventDefault();
+                                        const delta = e.key === 'ArrowRight' ? item.step : -item.step;
+                                        const nextValue = Math.min(item.max, Math.max(item.min, value + delta));
+                                        updateLorenzParam(item.key, Number(nextValue.toFixed(4)));
+                                    }}
+                                >
+                                    <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: `${percent}%`, backgroundColor: fillColor }} />
+                                    <div className={`absolute rounded-full ${thumbClass}`} style={{ left: `calc(${percent}% - ${isDream ? '14px' : '10px'})`, backgroundColor: isDream ? undefined : fillColor }} />
+                                </div>
+                            </div>
+                        );
+                    };
+
+                    const renderTitleBlock = () => {
+                        if (isD) return <h2 className="text-4xl font-black font-syne text-[#7DF9FF] drop-shadow-[4px_4px_0_#FF00FF] bg-black inline-block px-6 py-2 border-4 border-black transform rotate-2"><DecryptedText text="Lorenz Attractor" enabled={true} /></h2>;
+                        if (isC) return <h2 className="text-3xl font-bold font-cyber tracking-widest uppercase" style={{ color: theme.secondary }}><DecryptedText text="Lorenz Attractor Interactive" enabled={true} /></h2>;
+                        return <h2 className="text-3xl font-bold font-academic-serif text-gray-900 border-b-2 pb-2 inline-block" style={{ borderColor: theme.primary }}>非线性动力学：洛伦兹吸引子交互</h2>;
+                    };
+
+                    const renderControlPanel = () => {
+                        if (isD) return (
+                            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} className="relative z-30 pointer-events-auto col-span-1 flex flex-col justify-center space-y-6 bg-[#FFE600] p-6 rounded-3xl border-4 border-black shadow-[8px_8px_0_#B026FF]">
+                                <div className="bg-black text-[#FFE600] font-space font-bold px-3 py-1 inline-block border-2 border-black rounded self-start shadow-[2px_2px_0_#FF00FF]">CTRL_PANEL</div>
+                                {[ { label: 'σ (Sigma)', key: 'sigma', min: 1, max: 20, step: 0.1 }, { label: 'ρ (Rho)', key: 'rho', min: 10, max: 50, step: 0.5 }, { label: 'β (Beta)', key: 'beta', min: 0.5, max: 5, step: 0.1 } ].map(item => renderLorenzSlider(item, true))}
+                            </motion.div>
+                        );
+                        return (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className={`relative z-30 pointer-events-auto col-span-1 flex flex-col justify-center space-y-6 p-6 rounded-xl border ${isC ? 'bg-black/50 border-[#39FF14]33 backdrop-blur-md' : 'bg-white border-gray-200 shadow-sm'}`}>
+                                <p className={`font-mono text-sm ${isC ? 'text-gray-400' : 'text-gray-600'}`}>调节下方参数，实时观察动力系统的混沌分形轨迹变化：</p>
+                                {[ { label: 'σ (Sigma)', key: 'sigma', min: 1, max: 20, step: 0.1 }, { label: 'ρ (Rho)', key: 'rho', min: 10, max: 50, step: 0.5 }, { label: 'β (Beta)', key: 'beta', min: 0.5, max: 5, step: 0.1 } ].map(item => renderLorenzSlider(item, false))}
+                            </motion.div>
+                        );
+                    };
+
+                    const CanvasWrapperClass = isD
+                        ? 'bg-black border-8 border-[#7DF9FF] shadow-[12px_12px_0_#FF00FF] rounded-[2rem]'
+                        : (isC ? 'bg-black/80 border-[#00F3FF]40 shadow-[0_0_30px_rgba(0,243,255,0.1)] rounded-xl border' : 'bg-[#fafafa] border-gray-200 shadow-inner rounded-xl border');
+
+                    return (
+                        <div className="flex flex-col h-full z-10 w-full px-8">
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className={`mb-8 ${!isA ? 'text-center' : ''}`}>
+                                {renderTitleBlock()}
+                            </motion.div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-grow">
+                                {renderControlPanel()}
+                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }} className={`col-span-2 relative overflow-hidden pointer-events-none ${CanvasWrapperClass}`}>
+                                    {isD && <div className="absolute top-0 left-0 w-full h-8 bg-[#7DF9FF] border-b-4 border-black flex items-center px-4"><span className="font-space font-bold text-black text-sm">VIEWER.EXE</span></div>}
+                                    <LorenzCanvas sigma={lorenzParams.sigma} rho={lorenzParams.rho} beta={lorenzParams.beta} theme={theme} />
+                                </motion.div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                // ------ 第 5 页：时间轴 ------
+                if (id === 5) {
+                    return (
+                        <div className="flex flex-col h-full w-full max-w-6xl mx-auto px-4 z-10">
+                            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className={`mb-6 ${!isA ? 'text-center' : ''}`}>
+                                {isD ? (
+                                    <h2 className="text-4xl font-black font-syne text-[#FFE600] drop-shadow-[4px_4px_0_#000] border-4 border-black bg-[#FF00FF] inline-block px-8 py-2 transform -rotate-1"><DecryptedText text="Literature Evolution" enabled={true} /></h2>
+                                ) : isC ? (
+                                    <h2 className="text-3xl font-bold font-cyber tracking-widest uppercase" style={{ color: theme.primary }}><DecryptedText text="Literature Evolution" enabled={true} /></h2>
+                                ) : (
+                                    <div>
+                                        <span className="font-bold tracking-wider uppercase text-sm mb-1.5 block" style={{ color: theme.secondary }}>PART 01：概论部分</span>
+                                        <h2 className="text-2xl font-academic-serif text-gray-900 border-b border-gray-200 pb-2">理论奠基：核心文献演进与预言</h2>
+                                    </div>
+                                )}
+                            </motion.div>
+
+                            <div className="relative overflow-y-auto pr-4 pb-10 flex-grow mt-4" style={{ scrollbarWidth: 'none' }}>
+                                <div className={`absolute top-0 bottom-0 left-[23px] w-0.5 ${isD ? 'bg-white border-l-2 border-black w-2' : (isC ? 'bg-[#00F3FF]40' : 'bg-gray-200')}`}></div>
+
+                                {timelineData.map((item, index) => {
+                                    const isExpanded = expandedTimelineId === item.id;
+
+                                    let markerClass, cardClass, headerClass, titleClass, descClass;
+                                    if (isD) {
+                                        markerClass = `border-4 border-black bg-${item.isRed ? '[#FFE600]' : '[#7DF9FF]'} w-6 h-6 left-[11px]`;
+                                        cardClass = `bg-white border-4 border-black shadow-[8px_8px_0_#${item.isRed ? 'FF00FF' : '000'}] ml-4 rounded-xl`;
+                                        headerClass = `bg-${item.isRed ? '[#FF00FF]' : '[#FFE600]'} border-b-4 border-black`;
+                                        titleClass = `text-black font-space font-bold`;
+                                        descClass = `bg-white text-black font-space border-black`;
+                                    } else if (isC) {
+                                        markerClass = `border-2 ${item.isRed ? 'bg-[#ff003c] border-[#ff003c]' : 'bg-[#00F3FF] border-[#00F3FF]'} w-4 h-4 left-[16px]`;
+                                        cardClass = `bg-black/60 backdrop-blur-md border ${isExpanded ? 'border-[#39FF14]' : 'border-white/10 hover:border-[#00F3FF]50'} rounded-lg`;
+                                        headerClass = '';
+                                        titleClass = item.isRed ? 'text-[#ff003c]' : `text-[${theme.primary}]`;
+                                        descClass = 'bg-white/5 border-white/10 text-gray-300 font-mono';
+                                    } else {
+                                        markerClass = `border-2 ${item.isRed ? 'bg-red-500 border-red-200' : `bg-white border-[${theme.primary}]`} w-4 h-4 left-[16px]`;
+                                        cardClass = `bg-white shadow-sm hover:shadow ${item.isRed ? 'border-l-4 border-l-red-500 border-gray-200' : 'border-gray-200'} rounded-lg border`;
+                                        headerClass = '';
+                                        titleClass = item.isRed ? 'text-red-600' : 'text-gray-800';
+                                        descClass = 'bg-slate-50 border-slate-100 text-slate-700 font-academic-sans';
+                                    }
+
+                                    return (
+                                        <motion.div key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.08, duration: 0.28, ease: 'easeOut' }}
+                                            className="relative pl-12 mb-6 cursor-pointer will-change-transform" onClick={() => setExpandedTimelineId(isExpanded ? null : item.id)}>
+
+                                            <div className={`absolute rounded-full z-10 transition-all duration-300 top-4 ${isExpanded ? 'scale-125' : 'scale-100'} ${markerClass}`} />
+
+                                            <div className={`overflow-hidden transition-colors duration-200 ${cardClass}`}>
+                                                <div className={`p-4 flex items-start justify-between ${headerClass}`}>
+                                                    <div className="pr-4">
+                                                        <h3 className={`text-lg font-bold mb-1 ${titleClass}`} style={(!isD && isC && !item.isRed) ? { color: theme.primary } : {}}>
+                                                            {item.year}
+                                                        </h3>
+                                                        <p className={`text-xs md:text-sm leading-tight ${isD ? 'text-black font-bold' : (isC ? 'text-gray-400 font-mono' : 'text-gray-500 font-academic-serif')}`}>
+                                                            {item.title}
+                                                        </p>
+                                                    </div>
+                                                    <div className={`shrink-0 mt-1 transition-transform duration-300 ease-out ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
+                                                        {isD ? <IconX size={24} color="#000" className={isExpanded ? 'opacity-100' : 'opacity-0'} /> : <IconChevronDown size={20} color={isC ? theme.secondary : '#9ca3af'} />}
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid transition-[grid-template-rows,opacity] duration-300 ease-out" style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr', opacity: isExpanded ? 1 : 0 }}>
+                                                    <div className="min-h-0 overflow-hidden">
+                                                        <div className={`border-t px-5 py-4 transform-gpu transition-transform duration-300 ease-out ${isExpanded ? 'translate-y-0' : '-translate-y-2'} ${descClass}`}>
+                                                            <p className="text-sm leading-relaxed">{item.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                }
+            };
+
+            let slideVariants;
+            if (isD) {
+                slideVariants = {
+                    enter: (dir) => ({ x: dir > 0 ? 800 : -800, y: 100, rotate: dir > 0 ? 10 : -10, opacity: 0, scale: 0.8 }),
+                    center: { zIndex: 1, x: 0, y: 0, rotate: 0, opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 200, damping: 20 } },
+                    exit: (dir) => ({ zIndex: 0, x: dir < 0 ? 800 : -800, y: -100, rotate: dir < 0 ? -10 : 10, opacity: 0, scale: 0.8, transition: { duration: 0.4 } })
+                };
+            } else if (isC) {
+                slideVariants = {
+                    enter: (dir) => ({ x: dir > 0 ? 1000 : -1000, opacity: 0, scale: 0.9, filter: 'blur(10px)' }),
+                    center: { zIndex: 1, x: 0, opacity: 1, scale: 1, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 250, damping: 25 } },
+                    exit: (dir) => ({ zIndex: 0, x: dir < 0 ? 1000 : -1000, opacity: 0, scale: 0.9, filter: 'blur(10px)', transition: { type: 'spring', stiffness: 250, damping: 25 } })
+                };
+            } else {
+                slideVariants = {
+                    enter: (dir) => ({ x: dir > 0 ? 50 : -50, opacity: 0 }),
+                    center: { zIndex: 1, x: 0, opacity: 1, transition: { type: 'tween', duration: 0.4, ease: 'easeOut' } },
+                    exit: (dir) => ({ zIndex: 0, x: dir < 0 ? 50 : -50, opacity: 0, transition: { type: 'tween', duration: 0.4, ease: 'easeIn' } })
+                };
+            }
+
+            return (
+                <div ref={containerRef} className={`${isFullscreen ? 'fixed inset-0 z-[9999]' : 'relative'} w-full h-full overflow-hidden flex transition-all duration-700 ${theme.text}`} style={isD ? {} : { backgroundColor: theme.bg }}>
+
+                    {/* 全局背景和水印层 */}
+                    {isC && <ParticleGrid primaryColor={theme.primary} />}
+                    {isA && <div className="absolute top-0 right-0 w-64 h-64 bg-[#4B0082] opacity-5 rounded-bl-full pointer-events-none z-0"></div>}
+                    {isD && <DreamcoreBackground />}
+
+                    <AnimatePresence>
+                        {showWatermark && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden ${isD ? 'z-0 opacity-20 mix-blend-soft-light' : 'z-0'}`}>
+                                <img src="assets/nanjing-university-logo.png" alt="NJU Logo Watermark"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = "https://upload.wikimedia.org/wikipedia/en/thumb/b/b2/Nanjing_University_logo.svg/1024px-Nanjing_University_logo.svg.png"; }}
+                                    className={`object-contain transition-all duration-1000 ${isC ? 'w-[40%] opacity-[0.05] grayscale invert' : (isD ? 'w-[34%] opacity-[0.18] grayscale saturate-50' : 'w-[50%] opacity-[0.04] grayscale')}`}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* 侧边导航栏 (非全屏时显示) */}
+                    <AnimatePresence>
+                        {!isFullscreen && isSidebarOpen && (
+                            <motion.aside
+                                initial={{ width: 0, opacity: 0 }} animate={{ width: 240, opacity: 1 }} exit={{ width: 0, opacity: 0 }}
+                                className={`flex-shrink-0 z-40 border-r flex flex-col transition-colors duration-700 hidden md:flex
+                                    ${isD ? 'bg-white/20 border-r-4 border-black backdrop-blur-xl shadow-[4px_0_0_#FF00FF]' : (isC ? 'bg-black/60 border-[#39FF14]33 backdrop-blur-xl' : 'bg-white border-gray-200')}`}
+                            >
+                                <div className="p-6 pb-2">
+                                    <div className={`flex items-center justify-between gap-2 font-bold text-lg mb-6 ${isD ? 'font-syne text-black drop-shadow-[2px_2px_0_#7DF9FF]' : (isC ? `text-[${theme.primary}] font-mono` : 'text-gray-900 font-academic-sans')}`} style={isC ? {color: theme.primary} : {}}>
+                                        <div className="flex items-center gap-2">
+                                            <IconMenu size={20} /><span>幻灯片大纲</span>
+                                        </div>
+                                        <button onClick={() => setIsSidebarOpen(false)}
+                                            className={`p-1.5 rounded-md transition-colors ${isD ? 'hover:bg-[#FFE600] border-2 border-transparent hover:border-black' : (isC ? 'hover:bg-white/10' : 'hover:bg-gray-100')}`}
+                                            title="收起侧边栏"
+                                        >
+                                            <IconX size={18} color="currentColor" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-3 px-4 pb-6 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                                    {SLIDE_TITLES.map((title, i) => {
+                                        const isActive = currentSlide === i;
+                                        const sectionTitle = getSlideSectionTitle(i);
+                                        const shouldShowDivider = i === 0 || sectionTitle !== getSlideSectionTitle(i - 1);
+                                        const dreamcoreBtnClass = isActive
+                                            ? 'bg-[#FFE600] border-4 border-black text-black font-space font-bold shadow-[4px_4px_0_#B026FF] transform -rotate-1'
+                                            : 'bg-white/50 border-2 border-black text-black hover:bg-[#7DF9FF] hover:shadow-[2px_2px_0_#FF00FF] font-space';
+
+                                        return (
+                                            <React.Fragment key={`nav-${i}`}>
+                                                {shouldShowDivider && (
+                                                    <div className={`pt-2 first:pt-0 ${i === 0 ? '' : 'mt-2'}`}>
+                                                        <div className={`flex items-center gap-2 px-1 ${isD ? 'text-black font-space font-black' : (isC ? 'text-[#00F3FF] font-mono' : 'text-indigo-900 font-academic-sans')}`}>
+                                                            <span className={`h-px flex-1 ${isD ? 'bg-black border-t-2 border-black' : (isC ? 'bg-[#00F3FF]40' : 'bg-gray-200')}`}></span>
+                                                            <span className="text-[10px] tracking-widest uppercase whitespace-nowrap opacity-80">{sectionTitle}</span>
+                                                            <span className={`h-px flex-1 ${isD ? 'bg-black border-t-2 border-black' : (isC ? 'bg-[#00F3FF]40' : 'bg-gray-200')}`}></span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <button onClick={() => { setDirection(i > currentSlide ? 1 : -1); setCurrentSlide(i); }}
+                                                    className={`p-3 text-sm text-left rounded-lg transition-all flex items-center gap-3
+                                                        ${isD ? dreamcoreBtnClass : (isC ? `font-mono ${isActive ? 'bg-[#39FF14]20 border-l-4 border-[#39FF14] text-[#39FF14]' : 'text-gray-400 hover:text-[#00F3FF] hover:bg-white/5'}` : `font-academic-sans ${isActive ? 'bg-indigo-50 border-l-4 border-[#4B0082] text-indigo-900 font-bold' : 'text-gray-600 hover:text-indigo-800 hover:bg-gray-50'}`)}`}
+                                                >
+                                                    <span className={`w-5 text-center ${isActive ? '' : 'opacity-50'}`}>0{i+1}</span>
+                                                    {title}
+                                                </button>
+                                            </React.Fragment>
+                                        )
+                                    })}
+                                </div>
+                            </motion.aside>
+                        )}
+                    </AnimatePresence>
+
+                    {!isFullscreen && !isSidebarOpen && (
+                        <button onClick={() => setIsSidebarOpen(true)}
+                            className={`absolute left-4 top-24 z-50 hidden md:flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-all shadow-lg
+                                ${isD ? 'bg-[#FFE600] text-black border-4 border-black font-space font-bold shadow-[4px_4px_0_#B026FF] hover:shadow-[6px_6px_0_#FF00FF]' : (isC ? 'bg-black/70 text-gray-200 border-white/10 backdrop-blur-xl hover:text-white hover:border-[#00F3FF]60' : 'bg-white text-gray-700 border-gray-200 hover:text-indigo-800 hover:shadow-xl')}`}
+                            title="唤出侧边栏"
+                        >
+                            <IconMenu size={18} color="currentColor" />
+                            <span>大纲</span>
+                        </button>
+                    )}
+
+                    {/* 主展示区 */}
+                    <div className="relative flex-grow flex flex-col z-10 overflow-hidden">
+                        {/* 顶部进度导航 */}
+                        <header className={`relative p-4 md:p-6 flex justify-between items-center z-40 border-b transition-colors duration-700
+                            ${isD ? 'bg-black border-b-4 border-black shadow-[0_4px_0_#7DF9FF]' : (isC ? 'bg-black/40 backdrop-blur-xl border-[#39FF14]33' : 'bg-white/80 backdrop-blur-md border-gray-200 shadow-sm')}`}>
+                            <div className={`text-xs md:text-sm tracking-widest flex items-center gap-2 md:gap-3 ${isD ? 'font-space font-bold text-[#FFE600]' : (isC ? `font-mono text-[${theme.primary}]` : 'font-academic-sans text-[#4B0082]')}`} style={isC ? {color: theme.primary} : {}}>
+                                {isC ? (<span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: theme.primary, boxShadow: `0 0 10px ${theme.primary}` }} />) : (<span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: isD ? '#FF00FF' : theme.primary }} />)}
+                                <span className="hidden md:inline font-bold">{isD ? "NEO_DREAM_OS v9.9" : (isC ? <DecryptedText text="SYS.NEURAL_NET // RUNNING" delay={100} enabled={true} /> : "NJU Academic Presentation Framework")}</span>
+                            </div>
+                            <div className="flex gap-2 md:gap-3">
+                                {SLIDE_TITLES.map((_, i) => (
+                                    <div key={i} className={`relative h-2 md:h-3 w-6 md:w-10 lg:w-14 rounded-full overflow-hidden border ${isD ? 'bg-white border-black border-2' : (isC ? 'bg-gray-800 border-none h-1.5' : 'bg-gray-200 border-none h-1.5')}`}>
+                                        {i === currentSlide && (
+                                            <motion.div layoutId="activeSlideProgress" className="absolute inset-0"
+                                                style={{
+                                                    backgroundColor: isA ? theme.primary : (isD ? '#FF00FF' : undefined),
+                                                    backgroundImage: isC ? `linear-gradient(to right, ${theme.primary}, ${theme.secondary})` : undefined,
+                                                    boxShadow: isC ? `0 0 10px ${theme.secondary}CC` : undefined
+                                                }}
+                                                transition={!isA ? { type: 'spring', stiffness: 300, damping: 30 } : { type: 'tween' }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </header>
+
+                        {/* 幻灯片内容区 */}
+                        <main className="relative flex-grow flex items-center justify-center overflow-hidden">
+                            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                                <motion.div key={currentSlide} custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" className="absolute inset-0 p-8 flex flex-col justify-center max-w-6xl mx-auto w-full">
+                                    {renderSlideContent(currentSlide)}
+                                </motion.div>
+                            </AnimatePresence>
+                        </main>
+
+                        {!isFullscreen && (
+                            <footer className={`relative p-4 md:p-6 z-40 text-[10px] md:text-xs flex justify-between items-center border-t transition-colors duration-700
+                                ${isD ? 'font-space font-bold bg-white text-black border-t-4 border-black' : (isC ? 'font-mono text-gray-500 bg-gradient-to-t from-black via-black/80 to-transparent border-white/5' : 'font-academic-sans text-gray-400 bg-white/50 border-gray-100')}`}>
+                                <div className="hidden md:block">
+                                    {isD ? ">>> EXPLORE THE VIRTUAL SPACE <<<" : (isC ? <DecryptedText text="USE [ARROW_KEYS] TO NAVIGATE NODES" delay={1500} enabled={true} /> : "Keyboard Navigation Enabled: [Arrow Left] / [Arrow Right]")}
+                                </div>
+                                <div className="md:hidden">SWIPE/TAP</div>
+                                <div>
+                                    <span className="mr-3">{currentSlide + 1}/{TOTAL_SLIDES}</span>
+                                    {isD ? "DREAM_ENGINE.EXE" : (isC ? <DecryptedText text="RENDER_ENGINE: INTERACTIVE_UI" delay={1800} enabled={true} /> : "Powered by Tri-Engine UI v4.0")}
+                                </div>
+                            </footer>
+                        )}
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="control-randomize" type="button" class="control-btn bg-sky-600 text-white border-sky-600 hover:bg-sky-500">重采样</button>
-                        <button id="control-compare" type="button" class="control-btn">切换 A/B</button>
+
+                    {/* 悬浮中控面板 */}
+                    <div className={`absolute bottom-16 md:bottom-6 right-4 md:right-8 z-50 flex gap-3 md:gap-4 px-4 py-2 md:px-5 md:py-3 border rounded-2xl shadow-lg transition-all
+                        ${isD ? 'bg-[#FFE600] border-4 border-black shadow-[4px_4px_0_#B026FF] hover:shadow-[6px_6px_0_#FF00FF]' : (isC ? 'bg-black/50 backdrop-blur-xl border-white/10 hover:bg-black/80 hover:border-white/20' : 'bg-white border-gray-200 hover:shadow-xl')}`}>
+                        <button onClick={goToPreviousSlide} disabled={currentSlide === 0} className={`transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${isD ? 'text-black hover:text-[#00F3FF]' : (isC ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-800')}`} title="上一页">
+                            <IconChevronLeft size={20} />
+                        </button>
+                        <button onClick={goToNextSlide} disabled={currentSlide === TOTAL_SLIDES - 1} className={`transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${isD ? 'text-black hover:text-[#00F3FF]' : (isC ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-800')}`} title="下一页">
+                            <IconChevronRight size={20} />
+                        </button>
+                        <div className={`w-px h-5 self-center mx-1 ${isD ? 'bg-black border-l border-black' : (isC ? 'bg-white/20' : 'bg-gray-300')}`} />
+                        <button onClick={handleThemeToggle} className={`transition-colors ${isD ? 'text-black hover:text-[#FF00FF]' : (isC ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-800')}`} title="切换展示引擎 (Academic/Cyber/Dreamcore)">
+                            <IconPalette size={20} />
+                        </button>
+                        <button onClick={() => setShowWatermark(!showWatermark)} className={`transition-colors ${showWatermark ? (isC ? 'text-white' : (isD ? 'text-[#B026FF]' : 'text-indigo-800')) : (isD ? 'text-black/30' : 'text-gray-500')}`} title="切换水印保护">
+                            <IconFingerprint size={20} />
+                        </button>
+                        <div className={`w-px h-5 self-center mx-1 ${isD ? 'bg-black border-l border-black' : (isC ? 'bg-white/20' : 'bg-gray-300')}`} />
+                        <button onClick={toggleFullscreen} className={`transition-colors ${isD ? 'text-black hover:text-[#00F3FF]' : (isC ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-indigo-800')}`} title="全屏演示">
+                            {isFullscreen ? <IconMinimize size={20} /> : <IconMaximize size={20} />}
+                        </button>
                     </div>
+
                 </div>
+            );
+        };
 
-                <div class="glass-card rounded-xl p-5 border border-slate-200">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                        <div>
-                            <h3 class="text-base font-serif font-bold text-academic-900 mb-1">控件必须改变可视化状态</h3>
-                            <p class="text-[11px] text-slate-500 leading-snug">每个按钮都连接到右侧预览，避免“只有样式、没有解释力”的装饰性控件。</p>
-                        </div>
-                        <div class="segmented-control w-full md:w-auto">
-                            <button type="button" class="control-tab-btn active" data-control-tab="overview">概览</button>
-                            <button type="button" class="control-tab-btn" data-control-tab="detail">细节</button>
-                            <button type="button" class="control-tab-btn" data-control-tab="compare">对比</button>
-                        </div>
-                    </div>
-                    <div id="control-preview-stage" class="control-preview-stage"></div>
-                    <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="demo-stat">
-                            <p>当前视角</p>
-                            <strong id="control-mode-label">模型</strong>
-                        </div>
-                        <div class="demo-stat">
-                            <p>辅助层</p>
-                            <strong id="control-overlay-label">开启</strong>
-                        </div>
-                        <div class="demo-stat">
-                            <p>对比方案</p>
-                            <strong id="control-compare-label">A</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Slide 5: Comparison Table -->
-        <section id="page-7"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="对照表"
-                 data-part="PART 07"
-                 data-part-title="比较展示"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 07：比较展示</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">观点对照表模板</h2>
-            </div>
-
-            <div class="overflow-x-auto fade-in-up delay-100">
-                <table class="w-full text-[10px] border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
-                    <thead>
-                        <tr class="bg-slate-900 text-white">
-                            <th class="text-left p-3 font-bold border-r border-slate-700">比较维度</th>
-                            <th class="text-left p-3 font-bold border-r border-slate-700">方案 A</th>
-                            <th class="text-left p-3 font-bold">方案 B</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-xs">
-                        <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">基本假设</td>
-                            <td class="p-3 border-r border-slate-200">描述第一种方案的前提、边界与适用场景。</td>
-                            <td class="p-3">描述第二种方案的前提、边界与适用场景。</td>
-                        </tr>
-                        <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">优势</td>
-                            <td class="p-3 border-r border-slate-200">更成熟、路径清楚、已有验证或工程积累。</td>
-                            <td class="p-3">更灵活、解释力更强，或能覆盖新的问题范围。</td>
-                        </tr>
-                        <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">限制</td>
-                            <td class="p-3 border-r border-slate-200">指出主要风险、缺口或外推条件。</td>
-                            <td class="p-3">指出尚未解决的问题与需要验证的环节。</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3 font-bold border-r border-slate-200 bg-slate-50">适用结论</td>
-                            <td class="p-3 border-r border-slate-200">适合保守、稳定、可重复的场景。</td>
-                            <td class="p-3">适合探索性、解释性或需要互动展示的场景。</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="glass-card rounded-xl p-4 bg-slate-50 fade-in-up delay-200 mt-4">
-                <p class="text-xs text-slate-700 leading-snug text-center">
-                    对照表适合总结框架差异、方案取舍或正反观点。表头用深色，首列用浅灰，方便观众快速扫读。
-                </p>
-            </div>
-        </section>
-
-        <!-- Slide 6: Closing -->
-        <section id="page-8"
-                 class="page-content hidden w-full max-w-7xl mx-auto"
-                 data-nav="结论"
-                 data-part="PART 08"
-                 data-part-title="总结"
-                 data-group-start="true">
-            <div class="fade-in-up mb-4">
-                <span class="text-academic-accent font-bold tracking-wider uppercase text-sm mb-1.5 block">PART 08：总结</span>
-                <h2 class="text-2xl font-serif text-academic-900 border-b border-slate-200 pb-2">结论页模板</h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 fade-in-up delay-100">
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-blue-500">
-                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">结论一</h3>
-                    <p class="text-xs text-slate-700 leading-snug">用一句话总结最重要的发现。</p>
-                </div>
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-purple-500">
-                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">结论二</h3>
-                    <p class="text-xs text-slate-700 leading-snug">说明仍然存在的限制或不确定性。</p>
-                </div>
-                <div class="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
-                    <h3 class="text-base font-serif font-bold text-academic-900 mb-3">下一步</h3>
-                    <p class="text-xs text-slate-700 leading-snug">给出面向行动的后续计划。</p>
-                </div>
-            </div>
-
-            <div class="glass-card rounded-xl p-5 bg-gradient-to-br from-blue-50 to-sky-50 border-2 border-blue-300/70 fade-in-up delay-200 mt-4">
-                <p class="text-xs text-blue-900 leading-snug text-center">
-                    保持结论克制、清楚，并把听众带回可以验证或执行的下一步。
-                </p>
-            </div>
-        </section>
-
-        <!-- Fixed Center-Left / Center-Right Navigation Buttons -->
-        <button id="btn-prev" onclick="prevPage()" class="fixed left-[15.5rem] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md border border-slate-200 text-academic-900 flex items-center justify-center hover:bg-slate-100 transition-all z-50 opacity-0 pointer-events-none">
-            <svg class="w-5 h-5 pr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </button>
-        <button id="btn-next" onclick="nextPage()" class="fixed right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-academic-900 shadow-md border border-slate-700 text-white flex items-center justify-center hover:bg-academic-800 transition-all z-50">
-            <svg class="w-5 h-5 pl-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </button>
-
-        <button id="btn-fullscreen" onclick="toggleFullscreen()" class="fixed right-6 bottom-6 w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg text-white flex items-center justify-center hover:from-purple-700 hover:to-pink-700 transition-all z-50" title="全屏放映 (F)">
-            <svg id="fullscreen-icon-enter" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-            <svg id="fullscreen-icon-exit" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25"></path></svg>
-        </button>
-    </main>
-
-    <div class="progress-bar">
-        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
-    </div>
-
-    <script src="app.js"></script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Web3GeekDeck />);
+    </script>
 </body>
 </html>

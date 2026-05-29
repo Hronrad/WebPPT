@@ -1,80 +1,96 @@
-# WebPPT Template
+# WebPPT
 
-WebPPT 是一种 AI-native 的互动型展示方式。它把演示文稿写成普通网页：可进 Git、可复用组件、可写公式、可放动态演示，也可以直接通过告诉 AI 修改需求来编辑页面，不必再在 PPT 里反复拖拽文本框、调对齐和手动改样式。
+WebPPT 是一种 AI-native 的新时代互动型展示方式。它把演示文稿写成普通网页：可进 Git、可复用组件、可写公式、可放炫酷的动态演示，可以直接通过告诉 AI 修改需求来编辑页面，不必再在 PPT 里反复拖拽文本框、调对齐和手动改样式。
 
 **Description**  
-WebPPT is an AI-native, interactive web presentation template for building version-controlled decks with plain HTML, CSS, and JavaScript. Unlike video-first workflows that turn slides into narrated recordings, WebPPT focuses on live, explainable demos: formulas, parameter experiments, canvas simulations, control panels, and presentation pages that an AI coding assistant can read, modify, and extend from natural-language instructions.
+WebPPT is an AI-native, interactive presentation template built with Vite, React, Tailwind, Framer Motion, and reusable deck components. Unlike video-first workflows that turn slides into narrated recordings, WebPPT focuses on live, explainable demos: animated transitions, parameter experiments, motion-driven scenes, control panels, and presentation pages that an AI coding assistant can read, modify, and extend from natural-language instructions.
 
 相比传统 PPT，WebPPT 更适合学术汇报、课程讲义、研究分享和技术说明：
 
-- 公式由 MathJax 渲染，不需要截图
+- 公式和技术表达可以作为 React 组件或后续接入 MathJax/KaTeX
 - 动态演示可以直接写进页面
 - 参数实验、流程模拟和对照演示可以现场操作
+- React 组件适合沉淀不同汇报模板和演示控件
 - 样式统一维护，整套报告更容易保持一致
 - 页面结构清楚，便于 AI 或代码工具继续修改
-- 静态 HTML 文件即可分享和归档
-- 项目包含面向 AI 的 `AI_GUIDE.md`，AI 读后能快速判断汇报类型、选择页面模板并设计交互控件
+- `npm run build` 后可作为静态网页部署、分享和归档
+- 项目包含面向 AI 的 `SKILL.md`，AI 读后能快速判断汇报类型、选择页面模板并设计交互控件
 
-**给 AI 的直接说明：修改或扩展本项目之前，必须先阅读 `AI_GUIDE.md`。**  
+**给 AI 的直接说明：修改或扩展本项目之前，必须先阅读 `SKILL.md`。**
 该文件说明了 WebPPT 的定位、页面结构、互动控件设计原则和验收标准。AI 应根据其中的规则选择合适的汇报模板，而不是简单堆叠文字页。
 
 ![WebPPT demo](assets/demo.png)
 
 ## 定位
 
-WebPPT 的核心不是“把汇报录成视频”，而是把浏览器变成可操作的演示台。它适合需要边讲边调参数、逐步推导、对比假设、展示模拟过程的汇报场景。
+WebPPT 的核心是把浏览器变成可操作的演示台。它适合需要丝滑炸裂的动态效果、交互式实时展示、不想手动编辑几个小时做 PPT的汇报场景，同时适合快速做成视频发布。
 
-如果你的目标是制作固定节奏的口播视频，可以使用视频型 workflow；如果你的目标是在现场解释复杂概念，并让变量变化直接体现在画面上，WebPPT 更合适。
+## 转为口播视频
+
+WebPPT 的视频化路线建议保持轻量：先保留当前可交互网页作为主版本，再增加一份 `script.json` 或 `slides[].speakerNotes` 作为口播稿；录制时用 Playwright 按页自动切换、触发关键交互控件，并用系统 TTS 或人工录音合成旁白。这样既能保留现场演示版，也能快速导出适合发布的讲解视频。
 
 ## 使用
 
-最简单的方式：直接打开 `index.html`。
-
-```text
-webppt/index.html
-```
-
-进阶方式：如果需要本地服务或避免浏览器本地文件限制，可以运行：
+首次使用：
 
 ```bash
 cd webppt
-npm run serve
+npm install
+npm run dev
 ```
 
-然后访问：
+然后访问终端输出的本地地址，默认通常是：
 
 ```text
-http://localhost:4174
+http://127.0.0.1:4174
 ```
+
+构建静态成品：
+
+```bash
+npm run build
+npm run preview
+```
+
+普通用户不需要理解工程细节；使用 GitHub Pages、Vercel、Netlify 或任何静态托管服务部署 `dist/` 后，访问体验就是普通网页。
 
 ## 内置内容
 
-- 自动侧边导航与进度条
-- 全屏演示与键盘翻页
-- 封面、基础版式、公式页、时间线、动态演示、汇报模板库、控件库、对照表、结论页
-- 玻璃卡片、引用卡、指标卡、主公式卡、对照表
-- 多参数 canvas 实验台：频率、幅度、阻尼和显示模式联动
-- 演示控件库：滑块、分段按钮、开关、Stepper、Tabs、重采样、A/B 对比
-- 示例网页可直接切换风格模板：学术蓝 / 研究绿 / 技术紫 / 答辩红
-- 可切换动态背景：粒子网络 / 流动波纹 / 关闭背景
-- 可切换水印：南京大学 / 学术圆章 / 实验室标识 / 关闭水印
-- 面向 AI 的设计指南：`AI_GUIDE.md`
+- 顶部节点式进度条与左侧章节大纲
+- Framer Motion 页面转场与键盘翻页
+- 全屏放映按钮与 `F` 快捷键
+- 封面汇报标题、汇报人、单位信息
+- 底部悬浮中控面板：主题切换 / 水印开关 / 全屏演示
+- 可切换展示风格：Academic / Web3 Cyber / Y2K Dreamcore
+- 动态文本水印引擎：适合会议、内部汇报和实验室标识
+- React Bits 风格的 `DecryptedText` 解码动效
+- 粒子网格、Dreamcore 动态背景与浅色学术风
+- 可交互洛伦兹吸引子、时间轴展开、主题/水印/全屏控制
+- 面向 AI 的设计指南：`SKILL.md`
 
 ## 新增一页
 
-复制一个 section，放到 `<main>` 内：
+在 `index.html` 中修改 `SLIDE_TITLES`、`SLIDE_SECTIONS`，并在 `renderSlideContent(id)` 中新增对应页面：
 
-```html
-<section class="page-content hidden w-full max-w-7xl mx-auto"
-         data-nav="导航名称"
-         data-part="PART 01"
-         data-part-title="章节标题"
-         data-group-start="true">
-    ...
-</section>
+```jsx
+const SLIDE_TITLES = [
+  "首选项与概览",
+  "新页面标题"
+];
+
+const SLIDE_SECTIONS = [
+  { start: 0, title: "开场设置" },
+  { start: 1, title: "新章节" }
+];
+
+const renderSlideContent = (id) => {
+  if (id === 1) {
+    return <div className="z-10">...</div>;
+  }
+}
 ```
 
-`app.js` 会自动识别所有 `.page-content`，不需要手动维护总页数。
+顶部进度条会根据 `SLIDE_TITLES.length` 自动更新。键盘左右键和空格键已经内置。
 
 ## 文件结构
 
@@ -85,17 +101,18 @@ webppt/
 │   ├── watermark-academic-seal.svg
 │   └── watermark-lab-mark.svg
 ├── index.html
-├── styles.css
-├── app.js
+├── tailwind.config.js
+├── postcss.config.js
+├── vite.config.js
 ├── package.json
-├── AI_GUIDE.md
+├── SKILL.md
 └── README.md
 ```
 
 ## 定制
 
-- 风格模板：在示例网页“基础版式”页中使用 `style-mode` 下拉框直接切换
-- 主题色：修改 `styles.css` 中 `theme-sky / theme-emerald / theme-violet / theme-rose` 的 CSS 变量
-- 水印：替换 `assets/` 中图片，或修改 `watermark-mode` 下拉框
-- 动态背景：在 `app.js` 中增加新的 `drawXxx()`，再加入 `background-mode` 下拉框
-- 动态演示：复制第 4 页的 canvas 结构和 `initInteractiveDemo()` 逻辑
+- 页面内容：修改 `index.html` 中的 `SLIDE_TITLES`、`SLIDE_SECTIONS` 和 `renderSlideContent`
+- 动效：修改 `slideVariants` 或组件内的 `motion.*` 参数
+- 主题色：修改 `THEMES` 或页面内 Tailwind class
+- 背景：替换 `ParticleGrid` / `DreamcoreBackground`
+- 演示控件：在页面内维护 React 状态，确保控件改变可见结果
