@@ -16,18 +16,27 @@ WebPPT is an AI-native, interactive presentation template built with Vite, React
 - `npm run build` 后可作为静态网页部署、分享和归档
 - 项目包含面向 AI 的 `SKILL.md`，AI 读后能快速判断汇报类型、选择页面模板并设计交互控件
 
-**给 AI 的直接说明：修改或扩展本项目之前，必须先阅读 `SKILL.md`。**
+**如果你是 AI，请注意：修改或扩展本项目之前，必须先阅读 `SKILL.md`。**
 该文件说明了 WebPPT 的定位、页面结构、互动控件设计原则和验收标准。AI 应根据其中的规则选择合适的汇报模板，而不是简单堆叠文字页。
 
-![WebPPT demo](assets/demo.png)
+## 效果预览
+
+**商业级动效**：展示 WebPPT 用网页动画替代传统静态翻页的视觉效果。
+![WebPPT 商业级动效](assets/webppt%20商业级动效.gif)
+
+**多模板丝滑切换**：同一份内容可在 Academic、Web3 Cyber、Y2K Dreamcore 等风格间快速切换。
+![WebPPT 多模板丝滑切换](assets/webppt%20多模板丝滑切换.gif)
+
+**实时交互**：滑块、控制面板、可视化画布可以在汇报现场直接操作。
+![WebPPT 实时交互](assets/webppt%20实时交互.gif)
+
+**自定义水印**：适合课程、会议、实验室或内部汇报场景的品牌标识展示。
+![WebPPT 自定义水印](assets/webppt%20自定义水印.gif)
 
 ## 定位
 
-WebPPT 的核心是把浏览器变成可操作的演示台。它适合需要丝滑炸裂的动态效果、交互式实时展示、不想手动编辑几个小时做 PPT的汇报场景，同时适合快速做成视频发布。
+WebPPT 的核心是把浏览器变成可操作的演示台。它适合需要丝滑炸裂的动态效果、交互式实时展示、不想手动编辑几个小时做PPT的汇报场景，同时适合快速做成视频发布。
 
-## 转为口播视频
-
-WebPPT 的视频化路线建议保持轻量：先保留当前可交互网页作为主版本，再增加一份 `script.json` 或 `slides[].speakerNotes` 作为口播稿；录制时用 Playwright 按页自动切换、触发关键交互控件，并用系统 TTS 或人工录音合成旁白。这样既能保留现场演示版，也能快速导出适合发布的讲解视频。
 
 ## 使用
 
@@ -97,6 +106,10 @@ const renderSlideContent = (id) => {
 ```text
 webppt/
 ├── assets/
+│   ├── webppt 商业级动效.gif
+│   ├── webppt 多模板丝滑切换.gif
+│   ├── webppt 实时交互.gif
+│   ├── webppt 自定义水印.gif
 │   ├── nanjing-university-logo.png
 │   ├── watermark-academic-seal.svg
 │   └── watermark-lab-mark.svg
