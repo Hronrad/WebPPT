@@ -22,16 +22,20 @@ WebPPT is an AI-native, interactive presentation template built with Vite, React
 ## 效果预览
 
 **商业级动效**：展示 WebPPT 用网页动画替代传统静态翻页的视觉效果。
-![WebPPT 商业级动效](assets/preview-motion.gif)
+
+<video src="assets/preview-motion.mp4" controls muted loop playsinline width="100%"></video>
 
 **多模板丝滑切换**：同一份内容可在 Academic、Web3 Cyber、Y2K Dreamcore 等风格间快速切换。
-![WebPPT 多模板丝滑切换](assets/preview-themes.gif)
+
+<video src="assets/preview-themes.mp4" controls muted loop playsinline width="100%"></video>
 
 **实时交互**：滑块、控制面板、可视化画布可以在汇报现场直接操作。
-![WebPPT 实时交互](assets/preview-interaction.gif)
+
+<video src="assets/preview-interaction.mp4" controls muted loop playsinline width="100%"></video>
 
 **自定义水印**：适合课程、会议、实验室或内部汇报场景的品牌标识展示。
-![WebPPT 自定义水印](assets/preview-watermark.gif)
+
+<video src="assets/preview-watermark.mp4" controls muted loop playsinline width="100%"></video>
 
 ## 定位
 
@@ -106,10 +110,10 @@ const renderSlideContent = (id) => {
 ```text
 webppt/
 ├── assets/
-│   ├── preview-motion.gif
-│   ├── preview-themes.gif
-│   ├── preview-interaction.gif
-│   ├── preview-watermark.gif
+│   ├── preview-motion.mp4
+│   ├── preview-themes.mp4
+│   ├── preview-interaction.mp4
+│   ├── preview-watermark.mp4
 │   ├── nanjing-university-logo.png
 │   ├── watermark-academic-seal.svg
 │   └── watermark-lab-mark.svg
