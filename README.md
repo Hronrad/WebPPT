@@ -23,19 +23,19 @@ WebPPT is an AI-native, interactive presentation template built with Vite, React
 
 **商业级动效**：展示 WebPPT 用网页动画替代传统静态翻页的视觉效果。
 
-<video src="assets/preview-motion.mp4" controls muted loop playsinline width="100%"></video>
+<img src="assets/preview-motion.gif" alt="WebPPT 商业级动效预览" width="100%">
 
 **多模板丝滑切换**：同一份内容可在 Academic、Web3 Cyber、Y2K Dreamcore 等风格间快速切换。
 
-<video src="assets/preview-themes.mp4" controls muted loop playsinline width="100%"></video>
+<img src="assets/preview-themes.gif" alt="WebPPT 多模板切换预览" width="100%">
 
 **实时交互**：滑块、控制面板、可视化画布可以在汇报现场直接操作。
 
-<video src="assets/preview-interaction.mp4" controls muted loop playsinline width="100%"></video>
+<img src="assets/preview-interaction.gif" alt="WebPPT 实时交互预览" width="100%">
 
 **自定义水印**：适合课程、会议、实验室或内部汇报场景的品牌标识展示。
 
-<video src="assets/preview-watermark.mp4" controls muted loop playsinline width="100%"></video>
+<img src="assets/preview-watermark.gif" alt="WebPPT 自定义水印预览" width="100%">
 
 ## 定位
 
@@ -110,10 +110,10 @@ const renderSlideContent = (id) => {
 ```text
 webppt/
 ├── assets/
-│   ├── preview-motion.mp4
-│   ├── preview-themes.mp4
-│   ├── preview-interaction.mp4
-│   ├── preview-watermark.mp4
+│   ├── preview-motion.gif
+│   ├── preview-themes.gif
+│   ├── preview-interaction.gif
+│   ├── preview-watermark.gif
 │   ├── nanjing-university-logo.png
 │   ├── watermark-academic-seal.svg
 │   └── watermark-lab-mark.svg
