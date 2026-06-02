@@ -21,6 +21,8 @@ WebPPT is an AI-native, interactive presentation template built with Vite, React
 
 ## 效果预览
 
+在线查看demo！[https://web-ppt-lake.vercel.app/](https://web-ppt-lake.vercel.app/)
+
 **商业级动效**：展示 WebPPT 用网页动画替代传统静态翻页的视觉效果。
 
 <img src="assets/preview-motion.gif" alt="WebPPT 商业级动效预览" width="100%">
